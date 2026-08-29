@@ -52,7 +52,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-8 flex-1 overflow-y-auto">
+    <div className="p-3 sm:p-6 space-y-6 sm:space-y-8 flex-1 overflow-y-auto pb-24 lg:pb-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

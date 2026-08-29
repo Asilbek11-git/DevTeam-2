@@ -136,7 +136,7 @@ export const SwaggerApiDocs: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 flex-1 overflow-y-auto pb-24 lg:pb-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

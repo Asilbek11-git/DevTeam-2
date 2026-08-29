@@ -39,6 +39,7 @@ import { SwaggerApiDocs } from './components/SwaggerApiDocs';
 import { NotificationModal } from './components/NotificationModal';
 import { CreateTaskModal } from './components/CreateTaskModal';
 import { CreateProjectModal } from './components/CreateProjectModal';
+import { BottomNav } from './components/BottomNav';
 
 export default function App() {
   // Global State
@@ -46,6 +47,7 @@ export default function App() {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.uz;
 
   const [currentView, setCurrentView] = useState<string>('kanban');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState<User>(INITIAL_USERS[0]);
   const [currentRole, setCurrentRole] = useState<WorkspaceRole>('OWNER');
@@ -258,7 +260,9 @@ export default function App() {
         currentView={currentView}
         lang={lang}
         onLanguageChange={setLang}
+        onSelectLanguage={setLang}
         t={t}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(prev => !prev)}
       />
 
       {/* Main Layout Body */}
@@ -271,6 +275,8 @@ export default function App() {
           tasksCount={tasks.length}
           projectsCount={projects.length}
           t={t}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* View Router */}
@@ -521,6 +527,16 @@ export default function App() {
           onClearAll={() => setNotifications([])}
         />
       )}
+
+      {/* Mobile Bottom Navigation Bar (Docked on mobile phones) */}
+      <BottomNav
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        onToggleMenu={() => setIsMobileSidebarOpen(prev => !prev)}
+        tasksCount={tasks.length}
+        projectsCount={projects.length}
+        t={t}
+      />
     </div>
   );
 }

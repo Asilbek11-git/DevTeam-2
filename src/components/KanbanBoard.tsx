@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Plus, Search, Filter, AlertCircle, CheckCircle2, Clock,
-  MoreVertical, Tag, MessageSquare, Paperclip, ChevronRight, User, Flame
+  MoreVertical, Tag, MessageSquare, Paperclip, ChevronRight, ChevronLeft, User, Flame
 } from 'lucide-react';
 import { Task, BoardColumn, TaskStatus, TaskPriority, User as UserType, Sprint, Language } from '../types';
 import { Translations } from '../data/translations';
@@ -31,7 +31,20 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
   const [assigneeFilter, setAssigneeFilter] = useState<string>('ALL');
   const [sprintFilter, setSprintFilter] = useState<string>('ALL');
+  const [mobileActiveColumn, setMobileActiveColumn] = useState<string>('ALL');
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
+  const statusOrder: TaskStatus[] = ['BACKLOG', 'TODO', 'IN_PROGRESS', 'CODE_REVIEW', 'QA', 'DONE'];
+
+  const moveTask = (e: React.MouseEvent, taskId: string, currentStatus: TaskStatus, direction: 'prev' | 'next') => {
+    e.stopPropagation();
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    if (currentIndex === -1) return;
+    const targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+    if (targetIndex >= 0 && targetIndex < statusOrder.length) {
+      onUpdateTaskStatus(taskId, statusOrder[targetIndex]);
+    }
+  };
 
   // Filter tasks
   const filteredTasks = tasks.filter(task => {
@@ -86,12 +99,16 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     setDraggedTaskId(null);
   };
 
+  const displayedColumns = mobileActiveColumn === 'ALL'
+    ? columns
+    : columns.filter(c => c.status_mapping === mobileActiveColumn);
+
   return (
-    <div className="p-6 space-y-5 flex-1 flex flex-col h-full overflow-hidden">
+    <div className="p-3 sm:p-6 space-y-3 sm:space-y-5 flex-1 flex flex-col h-full overflow-hidden pb-24 lg:pb-6">
       {/* Board Header & Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 flex items-center space-x-2">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-100 flex items-center space-x-2">
             <span>{t.kanbanTitle}</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-normal">
               {filteredTasks.length} {t.openTasks}
@@ -103,14 +120,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         {/* Filters Bar */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
             <input
               type="text"
               placeholder={t.filterBySearch}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 w-40 sm:w-48"
+              className="pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 w-full sm:w-48"
             />
           </div>
 
@@ -118,7 +135,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 text-xs"
           >
             <option value="ALL">{t.allProjects}</option>
             <option value="CRITICAL">{t.priorityCritical}</option>
@@ -131,7 +148,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           <select
             value={assigneeFilter}
             onChange={(e) => setAssigneeFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 text-xs hidden xs:block"
           >
             <option value="ALL">{t.allAssignees}</option>
             {users.map(u => (
@@ -143,7 +160,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           <select
             value={sprintFilter}
             onChange={(e) => setSprintFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 text-xs hidden sm:block"
           >
             <option value="ALL">{t.allSprints}</option>
             {sprints.map(s => (
@@ -153,9 +170,44 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         </div>
       </div>
 
+      {/* Mobile Column Switcher Tab Pills */}
+      <div className="sm:hidden flex items-center space-x-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+        <button
+          onClick={() => setMobileActiveColumn('ALL')}
+          className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-medium transition-all ${
+            mobileActiveColumn === 'ALL'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'bg-slate-900 text-slate-400 border border-slate-800'
+          }`}
+        >
+          {t.allProjects || 'Hammasi'} ({filteredTasks.length})
+        </button>
+        {columns.map(col => {
+          const count = filteredTasks.filter(t => t.status === col.status_mapping).length;
+          const isActive = mobileActiveColumn === col.status_mapping;
+          return (
+            <button
+              key={col.id}
+              onClick={() => setMobileActiveColumn(col.status_mapping)}
+              className={`px-2.5 py-1.5 rounded-lg whitespace-nowrap flex items-center space-x-1.5 font-medium transition-all ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-900 text-slate-400 border border-slate-800'
+              }`}
+            >
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
+              <span>{getColumnTitle(col.status_mapping, col.title)}</span>
+              <span className={`text-[10px] px-1 rounded-full ${isActive ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Kanban Columns Grid */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3.5 overflow-x-auto pb-4 items-start">
-        {columns.map((col) => {
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5 overflow-x-auto pb-4 items-start">
+        {displayedColumns.map((col) => {
           const colTasks = filteredTasks.filter(t => t.status === col.status_mapping);
           const isOverWip = col.wip_limit > 0 && colTasks.length > col.wip_limit;
           const displayTitle = getColumnTitle(col.status_mapping, col.title);
@@ -165,7 +217,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               key={col.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, col.status_mapping)}
-              className="bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col max-h-full min-w-[240px] flex-shrink-0 transition-colors"
+              className="bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col max-h-full min-w-full sm:min-w-[240px] flex-shrink-0 transition-colors"
             >
               {/* Column Header */}
               <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
@@ -181,10 +233,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
                 <button
                   onClick={() => onOpenCreateTask(col.status_mapping)}
-                  className="p-1 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded transition-colors cursor-pointer"
                   title={`${t.actions}: ${displayTitle}`}
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
 
@@ -197,10 +249,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               )}
 
               {/* Tasks List */}
-              <div className="p-2 space-y-2 overflow-y-auto min-h-[350px] max-h-[calc(100vh-250px)]">
+              <div className="p-2 space-y-2 overflow-y-auto min-h-[150px] sm:min-h-[350px] max-h-[calc(100vh-270px)]">
                 {colTasks.map((task) => {
                   const completedSubtasks = task.subtasks?.filter(s => s.is_completed).length || 0;
                   const totalSubtasks = task.subtasks?.length || 0;
+                  const currentIdx = statusOrder.indexOf(task.status);
 
                   return (
                     <div
@@ -208,12 +261,36 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       draggable
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onClick={() => onSelectTask(task)}
-                      className="p-3 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 rounded-lg shadow-sm cursor-grab active:cursor-grabbing transition-all group hover:scale-[1.01]"
+                      className="p-3 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 rounded-lg shadow-sm cursor-pointer sm:cursor-grab active:cursor-grabbing transition-all group hover:scale-[1.01]"
                     >
-                      {/* Top Meta: Key & Priority */}
+                      {/* Top Meta: Key & Priority & Mobile quick move */}
                       <div className="flex items-center justify-between text-[11px] mb-1.5">
-                        <span className="font-mono font-semibold text-blue-400">{task.key}</span>
-                        {getPriorityBadge(task.priority)}
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-mono font-semibold text-blue-400">{task.key}</span>
+                          {getPriorityBadge(task.priority)}
+                        </div>
+
+                        {/* Touch-friendly Quick Move Controls on mobile */}
+                        <div className="flex items-center space-x-1 sm:hidden" onClick={e => e.stopPropagation()}>
+                          {currentIdx > 0 && (
+                            <button
+                              onClick={(e) => moveTask(e, task.id, task.status, 'prev')}
+                              className="p-1 rounded bg-slate-900 border border-slate-700 text-slate-400 hover:text-white"
+                              title="Move back"
+                            >
+                              <ChevronLeft className="w-3 h-3" />
+                            </button>
+                          )}
+                          {currentIdx < statusOrder.length - 1 && (
+                            <button
+                              onClick={(e) => moveTask(e, task.id, task.status, 'next')}
+                              className="p-1 rounded bg-slate-900 border border-slate-700 text-slate-400 hover:text-white"
+                              title="Move forward"
+                            >
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Title */}

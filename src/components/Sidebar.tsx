@@ -13,6 +13,8 @@ interface SidebarProps {
   tasksCount: number;
   projectsCount: number;
   t: Translations;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,7 +24,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   tasksCount,
   projectsCount,
   t,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
+  const handleItemClick = (id: string) => {
+    onNavigate(id);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
   const navSections = [
     {
       title: t.navKanban + ' & ' + t.navSprints,
@@ -53,9 +64,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   ];
 
-  return (
-    <aside className="w-64 bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col justify-between select-none h-[calc(100vh-53px)] sticky top-[53px] overflow-y-auto">
-      <div className="p-3 space-y-5">
+  const sidebarContent = (
+    <div className="flex flex-col justify-between h-full select-none">
+      <div className="p-3 space-y-4 overflow-y-auto">
         {navSections.map((section, idx) => (
           <div key={idx} className="space-y-1">
             <div className="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
@@ -68,8 +79,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <button
                     key={item.id}
-                    onClick={() => onNavigate(item.id)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all group cursor-pointer ${
+                    onClick={() => handleItemClick(item.id)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-all group cursor-pointer min-h-[40px] sm:min-h-0 ${
                       isActive
                         ? 'bg-blue-600/15 text-blue-400 border border-blue-500/30'
                         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
@@ -125,15 +136,62 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {currentWorkspace.plan_tier === 'FREE' && (
             <button
-              onClick={() => onNavigate('billing')}
-              className="mt-2.5 w-full py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs shadow-sm transition-all cursor-pointer"
+              onClick={() => handleItemClick('billing')}
+              className="mt-2.5 w-full py-2 sm:py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs shadow-sm transition-all cursor-pointer min-h-[40px] sm:min-h-0"
             >
               {t.upgradePlan}
             </button>
           )}
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-slate-950 border-r border-slate-800 text-slate-300 flex-col justify-between select-none h-[calc(100vh-53px)] sticky top-[53px] overflow-y-auto shrink-0">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Backdrop & Sliding Sheet */}
+      {isMobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div
+            onClick={onCloseMobile}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
+          />
+
+          {/* Drawer Panel */}
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-slate-950 border-r border-slate-800 text-slate-300 z-10 shadow-2xl animate-in slide-in-from-left duration-200">
+            {/* Drawer Header */}
+            <div className="p-3 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: currentWorkspace.brand_color }} />
+                <span className="font-semibold text-xs text-white truncate max-w-[170px]">{currentWorkspace.name}</span>
+                <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[9px] rounded font-mono border border-blue-500/30">
+                  {currentWorkspace.plan_tier}
+                </span>
+              </div>
+              <button
+                onClick={onCloseMobile}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto pb-16">
+              {sidebarContent}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

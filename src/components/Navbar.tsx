@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Code2, Bell, Plus, Sparkles, ChevronDown, Check,
-  User, Shield, LogOut, BookOpen, Layers, CheckCircle2, Globe, Languages
+  User, Shield, LogOut, BookOpen, Layers, CheckCircle2, Globe, Languages, Menu
 } from 'lucide-react';
 import { Workspace, User as UserType, NotificationItem, WorkspaceRole, Language } from '../types';
 import { Translations } from '../data/translations';
@@ -22,8 +22,10 @@ interface NavbarProps {
   onNavigate: (view: string) => void;
   currentView: string;
   lang: Language;
-  onSelectLanguage: (lang: Language) => void;
+  onSelectLanguage?: (lang: Language) => void;
+  onLanguageChange?: (lang: Language) => void;
   t: Translations;
+  onToggleMobileSidebar?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -43,11 +45,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   lang,
   onSelectLanguage,
+  onLanguageChange,
   t,
+  onToggleMobileSidebar,
 }) => {
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+
+  const handleLanguageChange = (newLang: Language) => {
+    if (onSelectLanguage) onSelectLanguage(newLang);
+    if (onLanguageChange) onLanguageChange(newLang);
+    setLangMenuOpen(false);
+  };
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -70,17 +80,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentLangObj = languages.find(l => l.code === lang) || languages[0];
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-slate-100 px-4 py-2.5 flex items-center justify-between shadow-sm">
+    <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-slate-100 px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between shadow-sm">
       {/* Brand & Workspace Selector */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        {/* Mobile Hamburger Drawer Toggle */}
+        <button
+          onClick={onToggleMobileSidebar}
+          className="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          aria-label="Open sidebar navigation"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         <button
           onClick={() => onNavigate('landing')}
-          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 font-bold text-lg transition-colors group cursor-pointer"
+          className="flex items-center space-x-1.5 sm:space-x-2 text-blue-400 hover:text-blue-300 font-bold text-base sm:text-lg transition-colors group cursor-pointer"
         >
-          <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-            <Code2 className="w-5 h-5" />
+          <div className="w-7 h-7 sm:w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
+            <Code2 className="w-4 h-4 sm:w-5 h-5" />
           </div>
-          <span className="tracking-tight text-white font-semibold">{t.brandName}<span className="text-blue-400 text-xs ml-1 px-1.5 py-0.5 rounded bg-blue-500/20 border border-blue-500/30">SaaS</span></span>
+          <span className="tracking-tight text-white font-semibold flex items-center">
+            {t.brandName}
+            <span className="text-blue-400 text-[10px] sm:text-xs ml-1 px-1 sm:px-1.5 py-0.2 rounded bg-blue-500/20 border border-blue-500/30 hidden xs:inline-block">SaaS</span>
+          </span>
         </button>
 
         <div className="h-5 w-px bg-slate-800 hidden sm:block"></div>
@@ -89,14 +111,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="relative">
           <button
             onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-            className="flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-200 transition-colors"
+            className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-slate-200 transition-colors"
           >
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentWorkspace.brand_color }}></div>
-            <span className="font-medium truncate max-w-[150px]">{currentWorkspace.name}</span>
-            <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[10px] rounded font-semibold border border-blue-500/30">
+            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: currentWorkspace.brand_color }}></div>
+            <span className="font-medium truncate max-w-[80px] sm:max-w-[150px]">{currentWorkspace.name}</span>
+            <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[10px] rounded font-semibold border border-blue-500/30 hidden md:inline-block">
               {currentWorkspace.plan_tier}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           </button>
 
           {workspaceMenuOpen && (
@@ -142,16 +164,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Quick Action & Controls */}
-      <div className="flex items-center space-x-2.5">
+      <div className="flex items-center space-x-1.5 sm:space-x-2.5">
         {/* Language Selector Dropdown */}
         <div className="relative">
           <button
             onClick={() => setLangMenuOpen(!langMenuOpen)}
-            className="flex items-center space-x-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 transition-colors cursor-pointer shadow-sm hover:border-slate-600"
+            className="flex items-center space-x-1 sm:space-x-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 rounded-lg px-2 sm:px-2.5 py-1.5 text-xs text-slate-200 transition-colors cursor-pointer shadow-sm hover:border-slate-600"
             title="Switch Language / Tilni tanlash / Выбрать язык"
           >
             <span className="text-sm">{currentLangObj.flag}</span>
-            <span className="font-medium">{currentLangObj.label}</span>
+            <span className="font-medium hidden sm:inline">{currentLangObj.label}</span>
             <ChevronDown className="w-3 h-3 text-slate-400" />
           </button>
 
@@ -163,10 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {languages.map((l) => (
                 <button
                   key={l.code}
-                  onClick={() => {
-                    onSelectLanguage(l.code);
-                    setLangMenuOpen(false);
-                  }}
+                  onClick={() => handleLanguageChange(l.code)}
                   className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-slate-800 transition-colors ${
                     l.code === lang ? 'text-blue-400 bg-blue-900/20 font-semibold' : 'text-slate-300'
                   }`}
@@ -185,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Swagger API Explorer Button */}
         <button
           onClick={() => onNavigate('api_docs')}
-          className={`flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+          className={`hidden sm:flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
             currentView === 'api_docs'
               ? 'bg-purple-900/30 text-purple-300 border-purple-500/40'
               : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800'
@@ -199,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* AI Assistant Studio Button */}
         <button
           onClick={onOpenAiStudio}
-          className="flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 text-blue-300 hover:border-blue-400 transition-all shadow-sm"
+          className="flex items-center space-x-1 sm:space-x-1.5 text-xs px-2 sm:px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 text-blue-300 hover:border-blue-400 transition-all shadow-sm"
         >
           <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
           <span className="font-medium hidden sm:inline">AI Studio</span>
@@ -208,10 +227,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Quick New Task Button */}
         <button
           onClick={onOpenCreateTask}
-          className="flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-sm transition-colors"
+          className="flex items-center space-x-1 sm:space-x-1.5 text-xs px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-sm transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>{t.newTask}</span>
+          <span className="hidden xs:inline">{t.newTask}</span>
         </button>
 
         {/* Notifications */}
@@ -228,13 +247,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </button>
 
-        <div className="h-5 w-px bg-slate-800"></div>
+        <div className="h-5 w-px bg-slate-800 hidden xs:block"></div>
 
         {/* User & Role Switcher */}
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200"
+            className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg px-2 sm:px-2.5 py-1 text-xs text-slate-200"
           >
             <div className="w-6 h-6 rounded-full bg-blue-500 text-white font-bold flex items-center justify-center text-[10px]">
               {currentUser.first_name[0]}{currentUser.last_name[0]}
@@ -262,7 +281,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {roles.map(r => (
                   <button
                     key={r}
-                    onClick={() => onChangeRole(r)}
+                    onClick={() => {
+                      onChangeRole(r);
+                      setUserMenuOpen(false);
+                    }}
                     className={`text-[10px] px-2 py-1 rounded text-left font-medium transition-colors ${
                       currentRole === r
                         ? 'bg-blue-600 text-white'
@@ -296,7 +318,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <div className="border-t border-slate-800 mt-2 pt-1">
                 <button
-                  onClick={() => onNavigate('landing')}
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    onNavigate('landing');
+                  }}
                   className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800 flex items-center space-x-2"
                 >
                   <Globe className="w-3.5 h-3.5" />
