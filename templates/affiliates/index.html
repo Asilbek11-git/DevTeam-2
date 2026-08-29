@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Referral & Affiliate Partner Program</h2>
+            <p class="text-xs text-slate-400">Earn 30% recurring monthly commissions on every paying engineering team you refer.</p>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+            Request Payout
+        </button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Total Clicks</span>
+            <p class="text-2xl font-bold text-white font-mono mt-2">1,248</p>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Referred Teams</span>
+            <p class="text-2xl font-bold text-white font-mono mt-2">14</p>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Monthly Recurring</span>
+            <p class="text-2xl font-bold text-emerald-400 font-mono mt-2">$420.00</p>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Paid Out</span>
+            <p class="text-2xl font-bold text-indigo-400 font-mono mt-2">$2,180.00</p>
+        </div>
+    </div>
+
+    <!-- Unique Referral Link Box -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Your Unique Referral Link</h3>
+        <div class="flex items-center gap-3">
+            <input type="text" readonly value="https://devteam.io/ref/{{ user.username|default:'alex' }}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-300 font-mono focus:outline-none" />
+            <button onclick="navigator.clipboard.writeText('https://devteam.io/ref/{{ user.username|default:\'alex\' }}'); alert('Referral link copied!');" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 shrink-0 transition">
+                <i class="fa-regular fa-copy mr-1"></i> Copy Link
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

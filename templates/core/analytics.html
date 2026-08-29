@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Engineering Velocity & Metrics</h2>
+            <p class="text-xs text-slate-400">Sprint cycle times, story point throughput, bug discovery rates, and code review speed</p>
+        </div>
+    </div>
+
+    <!-- Analytics Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Avg Cycle Time</span>
+            <p class="text-2xl font-bold text-white font-mono mt-2">2.4 Days</p>
+            <span class="text-xs text-emerald-400 font-medium">18% faster than avg</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Sprint Completion</span>
+            <p class="text-2xl font-bold text-white font-mono mt-2">94.2%</p>
+            <span class="text-xs text-emerald-400 font-medium">+4.1% vs Sprint 23</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">PR Review Turnaround</span>
+            <p class="text-2xl font-bold text-white font-mono mt-2">3.8 Hours</p>
+            <span class="text-xs text-sky-400 font-medium">Fast review response</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Bug Leakage Rate</span>
+            <p class="text-2xl font-bold text-emerald-400 font-mono mt-2">0.8%</p>
+            <span class="text-xs text-slate-400">Below 2.0% threshold</span>
+        </div>
+    </div>
+
+    <!-- Telemetry Showcase -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Sprint Burndown & Velocity Progression</h3>
+        <div class="h-48 flex items-end justify-between gap-2 pt-6 px-4 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div class="w-full bg-indigo-500/30 hover:bg-indigo-500 rounded-t-lg h-[40%] transition flex items-end justify-center pb-2 text-[10px] text-indigo-300">Sprint 20</div>
+            <div class="w-full bg-indigo-500/40 hover:bg-indigo-500 rounded-t-lg h-[55%] transition flex items-end justify-center pb-2 text-[10px] text-indigo-300">Sprint 21</div>
+            <div class="w-full bg-indigo-500/50 hover:bg-indigo-500 rounded-t-lg h-[65%] transition flex items-end justify-center pb-2 text-[10px] text-indigo-300">Sprint 22</div>
+            <div class="w-full bg-indigo-500/60 hover:bg-indigo-500 rounded-t-lg h-[80%] transition flex items-end justify-center pb-2 text-[10px] text-indigo-300">Sprint 23</div>
+            <div class="w-full bg-gradient-to-t from-indigo-600 to-violet-500 rounded-t-lg h-[92%] transition flex items-end justify-center pb-2 text-[10px] text-white font-bold">Sprint 24</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

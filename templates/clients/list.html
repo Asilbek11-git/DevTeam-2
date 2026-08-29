@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Clients CRM</h1>
+            <p class="text-xs text-slate-400 mt-1">Manage client profiles, contact information, project history, and billing records.</p>
+        </div>
+        <div>
+            <a href="{% url 'client-create' %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Add Client</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4">
+            <span class="text-xs text-slate-400 font-medium uppercase">Total Clients</span>
+            <div class="text-2xl font-bold text-white mt-1">{{ stats.total }}</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4">
+            <span class="text-xs text-emerald-400 font-medium uppercase">Active Accounts</span>
+            <div class="text-2xl font-bold text-emerald-400 mt-1">{{ stats.active }}</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4">
+            <span class="text-xs text-amber-400 font-medium uppercase">Prospect Leads</span>
+            <div class="text-2xl font-bold text-amber-400 mt-1">{{ stats.leads }}</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4">
+            <span class="text-xs text-slate-400 font-medium uppercase">Archived</span>
+            <div class="text-2xl font-bold text-slate-400 mt-1">{{ stats.archived }}</div>
+        </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <form method="GET" class="flex flex-1 items-center gap-3 w-full sm:w-auto">
+            <div class="relative flex-1 max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search client name, company, email..." 
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- Status Dropdown -->
+            <select name="status" onchange="this.form.submit()" 
+                    class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                <option value="ALL" {% if status_filter == 'ALL' %}selected{% endif %}>All Statuses</option>
+                {% for code, label in status_choices %}
+                <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700 transition">
+                Filter
+            </button>
+            {% if search_query or status_filter != 'ALL' %}
+            <a href="{% url 'client-list' %}" class="text-xs text-rose-400 hover:underline">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Client Table -->
+    <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-950/80 text-slate-400 uppercase font-semibold border-b border-slate-800/80">
+                    <tr>
+                        <th class="px-6 py-3.5">Client & Company</th>
+                        <th class="px-6 py-3.5">Contact Details</th>
+                        <th class="px-6 py-3.5">Status</th>
+                        <th class="px-6 py-3.5">Rating</th>
+                        <th class="px-6 py-3.5">Created</th>
+                        <th class="px-6 py-3.5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                    {% for client in clients %}
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                        <td class="px-6 py-4">
+                            <a href="{% url 'client-detail' client.id %}" class="font-bold text-white hover:text-indigo-400 text-sm block">
+                                {{ client.full_name }}
+                            </a>
+                            <span class="text-slate-400 text-[11px]">{{ client.company|default:"Independent Client" }}</span>
+                        </td>
+                        <td class="px-6 py-4 space-y-0.5">
+                            <div class="flex items-center gap-1.5 text-slate-300">
+                                <i class="fa-solid fa-envelope text-[10px] text-slate-400"></i>
+                                <a href="mailto:{{ client.email }}" class="hover:underline">{{ client.email }}</a>
+                            </div>
+                            {% if client.phone %}
+                            <div class="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                                <i class="fa-solid fa-phone text-[10px] text-slate-400"></i>
+                                <span>{{ client.phone }}</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider
+                                {% if client.status == 'ACTIVE' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                {% elif client.status == 'LEAD' %}bg-amber-500/10 text-amber-400 border border-amber-500/20
+                                {% elif client.status == 'INACTIVE' %}bg-slate-800 text-slate-400
+                                {% elif client.status == 'ARCHIVED' %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %}">
+                                {{ client.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center text-amber-400 text-xs">
+                                {% for i in "12345" %}
+                                    <i class="fa-solid fa-star {% if forloop.counter <= client.rating %}text-amber-400{% else %}text-slate-700{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 font-mono text-[11px]">
+                            {{ client.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <a href="{% url 'client-detail' client.id %}" title="View Details" class="p-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a href="{% url 'client-edit' client.id %}" title="Edit Profile" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                            <div class="space-y-2">
+                                <i class="fa-solid fa-address-book text-3xl text-slate-600"></i>
+                                <p class="text-sm">No clients found matching your query.</p>
+                                <a href="{% url 'client-create' %}" class="inline-block text-xs text-indigo-400 hover:underline">Add a new client account</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if clients.has_other_pages %}
+        <div class="p-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span>Showing page {{ clients.number }} of {{ clients.paginator.num_pages }}</span>
+            <div class="flex items-center gap-1">
+                {% if clients.has_previous %}
+                <a href="?page={{ clients.previous_page_number }}&q={{ search_query }}&status={{ status_filter }}" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700">Prev</a>
+                {% endif %}
+                {% if clients.has_next %}
+                <a href="?page={{ clients.next_page_number }}&q={{ search_query }}&status={{ status_filter }}" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

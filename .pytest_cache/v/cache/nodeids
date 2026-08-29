@@ -1,0 +1,12 @@
+[
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_ai_service_fallback",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_authentication_and_jwt_issuance",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_dependency_cycle_detection_algorithm",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_django_templates_rendering",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_health_check_endpoint",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_openapi_schema_endpoint",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_payment_processing_flow",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_plan_project_limit_enforcement",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_strict_multi_tenant_workspace_isolation",
+  "tests/test_architecture.py::TestDevTeamArchitecture::test_vcs_webhook_task_linking"
+]

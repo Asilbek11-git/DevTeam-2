@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-xl">
+                {{ client.full_name|slice:":2"|upper }}
+            </div>
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl font-bold text-white tracking-tight">{{ client.full_name }}</h1>
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider
+                        {% if client.status == 'ACTIVE' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                        {% elif client.status == 'LEAD' %}bg-amber-500/10 text-amber-400 border border-amber-500/20
+                        {% elif client.status == 'INACTIVE' %}bg-slate-800 text-slate-400
+                        {% elif client.status == 'ARCHIVED' %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %}">
+                        {{ client.get_status_display }}
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">{{ client.company|default:"Independent Client" }} • Client since {{ client.created_at|date:"F Y" }}</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{% url 'client-edit' client.id %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </a>
+            {% if client.status == 'ARCHIVED' %}
+            <a href="{% url 'client-restore' client.id %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+                <i class="fa-solid fa-rotate-left"></i> Restore
+            </a>
+            {% else %}
+            <a href="{% url 'client-archive' client.id %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-rose-900/40 text-rose-400 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-box-archive"></i> Archive
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Overview Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Contact & Profile Metadata -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800/80 pb-3">Client Information</h3>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-slate-400 block">Email Address:</span>
+                    <a href="mailto:{{ client.email }}" class="text-indigo-400 hover:underline font-medium">{{ client.email }}</a>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Phone Number:</span>
+                    <span class="text-slate-200">{{ client.phone|default:"Not specified" }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Company Website:</span>
+                    {% if client.website %}
+                    <a href="{{ client.website }}" target="_blank" class="text-sky-400 hover:underline">{{ client.website }}</a>
+                    {% else %}
+                    <span class="text-slate-500">None</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Client Satisfaction Rating:</span>
+                    <div class="flex items-center text-amber-400 text-xs mt-1">
+                        {% for i in "12345" %}
+                            <i class="fa-solid fa-star {% if forloop.counter <= client.rating %}text-amber-400{% else %}text-slate-700{% endif %}"></i>
+                        {% endfor %}
+                        <span class="text-slate-400 ml-2 font-mono">({{ client.rating }}/5)</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Total Pipeline Value:</span>
+                    <span class="text-emerald-400 font-bold font-mono text-sm">${{ total_deal_value|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            {% if client.notes %}
+            <div class="pt-3 border-t border-slate-800/80">
+                <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1.5">Internal Notes</span>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 whitespace-pre-line leading-relaxed">
+                    {{ client.notes }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Linked Deals & Leads -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Leads / Inquiries -->
+            <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-funnel-dollar text-amber-400"></i>
+                        <span>Deals & Inquiries</span>
+                    </h3>
+                    <a href="{% url 'lead-create' %}?client_id={{ client.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                        + New Deal
+                    </a>
+                </div>
+
+                <div class="divide-y divide-slate-800/60">
+                    {% for lead in leads %}
+                    <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+                        <div>
+                            <a href="{% url 'lead-detail' lead.id %}" class="text-sm font-semibold text-white hover:text-indigo-400">
+                                {{ lead.title }}
+                            </a>
+                            <div class="flex items-center gap-3 text-xs text-slate-400 mt-1">
+                                <span>Budget: <strong class="text-emerald-400 font-mono">${{ lead.budget|floatformat:2 }}</strong></span>
+                                <span>•</span>
+                                <span>Win Prob: <strong class="text-slate-300 font-mono">{{ lead.probability }}%</strong></span>
+                                {% if lead.service %}
+                                <span>•</span>
+                                <span>{{ lead.service.name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase
+                                {% if lead.status == 'NEW' %}bg-sky-500/10 text-sky-400 border border-sky-500/20
+                                {% elif lead.status == 'ACCEPTED' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                {% elif lead.status == 'NEGOTIATION' %}bg-amber-500/10 text-amber-400 border border-amber-500/20
+                                {% else %}bg-slate-800 text-slate-400{% endif %}">
+                                {{ lead.get_status_display }}
+                            </span>
+                            <a href="{% url 'lead-detail' lead.id %}" class="p-1.5 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-500 text-center py-6">No deals created for this client yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Invoices -->
+            <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                        <span>Recent Workspace Invoices</span>
+                    </h3>
+                    <a href="{% url 'billing-invoices' %}" class="text-xs text-indigo-400 hover:text-indigo-300">View Invoices</a>
+                </div>
+
+                <div class="divide-y divide-slate-800/60">
+                    {% for inv in invoices %}
+                    <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+                        <div>
+                            <span class="text-xs font-semibold text-white font-mono">{{ inv.invoice_number }}</span>
+                            <div class="text-[11px] text-slate-400 mt-0.5">{{ inv.payment_method }} • {{ inv.created_at|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono text-sm font-bold text-white">${{ inv.amount|floatformat:2 }}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                                {% if inv.status == 'PAID' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                {% else %}bg-slate-800 text-slate-400{% endif %}">
+                                {{ inv.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-500 text-center py-4">No billing invoices found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

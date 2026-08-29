@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block public_content %}
+<!-- Navigation Header -->
+<header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/25">
+                <i class="fa-solid fa-cube text-lg"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-white">DevTeam</span>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a href="#features" class="hover:text-white transition">Features</a>
+            <a href="#architecture" class="hover:text-white transition">Architecture</a>
+            <a href="#pricing" class="hover:text-white transition">Pricing</a>
+            <a href="/api/docs/" target="_blank" class="hover:text-white transition">API Docs</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <a href="{% url 'login' %}" class="text-sm font-semibold text-slate-300 hover:text-white px-3 py-2">Sign In</a>
+            <a href="{% url 'register' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+                Get Started Free
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="py-24 px-6 relative overflow-hidden">
+    <div class="max-w-5xl mx-auto text-center space-y-8 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Enterprise Multi-Tenant Agile SaaS Platform</span>
+        </div>
+
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+            Build, Ship & Scale <br/>
+            <span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">Software at Warp Speed</span>
+        </h1>
+
+        <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+            The mission-critical developer project management platform. Multi-tenant isolation, sprint velocity analytics, interactive Kanban boards, Git integrations, and Gemini AI task estimation.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+            <a href="{% url 'register' %}" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold px-8 py-4 rounded-xl shadow-xl shadow-indigo-600/30 text-base transition-all transform hover:-translate-y-0.5">
+                Launch Workspace Free
+            </a>
+            <a href="{% url 'login' %}" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-semibold px-8 py-4 rounded-xl text-base transition-all">
+                Live Interactive Demo
+            </a>
+        </div>
+
+        <!-- Tech Stack Pill Row -->
+        <div class="pt-12 flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-slate-400">
+            <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800"><i class="fa-brands fa-python text-amber-400 mr-1.5"></i> Django 5.x</span>
+            <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800"><i class="fa-brands fa-react text-sky-400 mr-1.5"></i> React 19 / TypeScript</span>
+            <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800"><i class="fa-solid fa-database text-indigo-400 mr-1.5"></i> PostgreSQL / SQLite</span>
+            <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800"><i class="fa-solid fa-brain text-purple-400 mr-1.5"></i> Gemini AI GenAI</span>
+            <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800"><i class="fa-brands fa-docker text-blue-400 mr-1.5"></i> Docker & Celery</span>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Showcase Grid -->
+<section id="features" class="py-20 px-6 border-t border-slate-800/80 bg-slate-900/40">
+    <div class="max-w-7xl mx-auto space-y-16">
+        <div class="text-center space-y-4">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">Engineered for High-Velocity Dev Teams</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto text-base">Everything engineering managers, lead developers, and agile teams need in one unified ecosystem.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-8 space-y-4 relative group hover:border-indigo-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl border border-indigo-500/20">
+                    <i class="fa-solid fa-table-columns"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Agile Kanban & Sprints</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Interactive board columns (Backlog, Todo, In Progress, Code Review, QA, Done) with story points and WIP limits.</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-8 space-y-4 relative group hover:border-violet-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl border border-violet-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Gemini AI Studio</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Automatic user story expansion, acceptance criteria drafting, technical complexity estimation, and bug triage.</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-8 space-y-4 relative group hover:border-emerald-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl border border-emerald-500/20">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Multi-Tenant RBAC</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Isolated workspaces with fine-grained roles: Owner, Admin, PM, Lead Developer, Developer, and Client viewers.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-slate-800/80 py-12 px-6 bg-slate-950 text-center text-sm text-slate-400">
+    <p>© 2026 DevTeam SaaS Platform. Built with Django 5 & React 19.</p>
+</footer>
+{% endblock %}

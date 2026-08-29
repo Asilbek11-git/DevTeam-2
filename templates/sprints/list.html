@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Agile Sprints & Velocity</h2>
+            <p class="text-xs text-slate-400">Plan 2-week iterations, track burndown charts, and analyze team capacity</p>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/20 transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Start New Sprint</span>
+        </button>
+    </div>
+
+    <!-- Active Sprints List -->
+    <div class="space-y-4">
+        {% for sprint in sprints %}
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400">{{ sprint.name }}</span>
+                        <span class="text-xs text-emerald-400 font-semibold">• {{ sprint.status }}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white mt-1">{{ sprint.goal|default:"Sprint objectives and deliverables." }}</p>
+                </div>
+                <div class="text-xs text-slate-400 font-mono">
+                    {{ sprint.start_date|default:"2026-08-15" }} → {{ sprint.end_date|default:"2026-08-29" }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-3 border-t border-slate-800 text-xs">
+                <div>
+                    <span class="text-slate-400">Total Points</span>
+                    <p class="text-base font-bold text-white font-mono">{{ sprint.total_story_points }} SP</p>
+                </div>
+                <div>
+                    <span class="text-slate-400">Completed</span>
+                    <p class="text-base font-bold text-emerald-400 font-mono">{{ sprint.completed_story_points }} SP</p>
+                </div>
+                <div>
+                    <span class="text-slate-400">Velocity Metric</span>
+                    <p class="text-base font-bold text-indigo-400 font-mono">{{ sprint.velocity }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Demo Sprint Mock Preview -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400">Sprint 24</span>
+                        <span class="text-xs text-emerald-400 font-semibold">• ACTIVE</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white mt-1">Core Auth, JWT Refresh & Multi-Tenant Billing Gateway</p>
+                </div>
+                <div class="text-xs text-slate-400 font-mono">2026-08-15 → 2026-08-29</div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-3 border-t border-slate-800 text-xs">
+                <div>
+                    <span class="text-slate-400">Total Story Points</span>
+                    <p class="text-base font-bold text-white font-mono">42 SP</p>
+                </div>
+                <div>
+                    <span class="text-slate-400">Completed</span>
+                    <p class="text-base font-bold text-emerald-400 font-mono">28 SP</p>
+                </div>
+                <div>
+                    <span class="text-slate-400">Estimated Velocity</span>
+                    <p class="text-base font-bold text-indigo-400 font-mono">38.5</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

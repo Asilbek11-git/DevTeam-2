@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Invoices & Billing History</h2>
+            <p class="text-xs text-slate-400">Download PDF receipts and manage payment methods</p>
+        </div>
+        <a href="{% url 'billing-plans' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+            Change Plan
+        </a>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <table class="w-full text-left text-xs border-collapse">
+            <thead>
+                <tr class="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider">
+                    <th class="py-3.5 px-4">Invoice #</th>
+                    <th class="py-3.5 px-4">Billing Date</th>
+                    <th class="py-3.5 px-4">Amount</th>
+                    <th class="py-3.5 px-4">Status</th>
+                    <th class="py-3.5 px-4">Payment Method</th>
+                    <th class="py-3.5 px-4 text-right">Receipt</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+                <tr class="hover:bg-slate-800/30 transition">
+                    <td class="py-3.5 px-4 font-mono font-bold text-indigo-400">INV-2026-0801</td>
+                    <td class="py-3.5 px-4 text-slate-300">August 01, 2026</td>
+                    <td class="py-3.5 px-4 font-bold text-white font-mono">$29.00 USD</td>
+                    <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">PAID</span></td>
+                    <td class="py-3.5 px-4 text-slate-300"><i class="fa-brands fa-cc-stripe mr-1 text-indigo-400"></i> Visa ending in 4242</td>
+                    <td class="py-3.5 px-4 text-right"><a href="#" class="text-indigo-400 hover:text-indigo-300 font-semibold"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</a></td>
+                </tr>
+                <tr class="hover:bg-slate-800/30 transition">
+                    <td class="py-3.5 px-4 font-mono font-bold text-indigo-400">INV-2026-0701</td>
+                    <td class="py-3.5 px-4 text-slate-300">July 01, 2026</td>
+                    <td class="py-3.5 px-4 font-bold text-white font-mono">$29.00 USD</td>
+                    <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">PAID</span></td>
+                    <td class="py-3.5 px-4 text-slate-300"><i class="fa-brands fa-cc-stripe mr-1 text-indigo-400"></i> Visa ending in 4242</td>
+                    <td class="py-3.5 px-4 text-right"><a href="#" class="text-indigo-400 hover:text-indigo-300 font-semibold"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

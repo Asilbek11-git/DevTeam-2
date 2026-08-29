@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-12 max-w-7xl mx-auto py-4">
+    <div class="text-center space-y-3">
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">Flexible SaaS Subscription Plans</h2>
+        <p class="text-sm text-slate-400 max-w-xl mx-auto">Scale your engineering workflow with custom user seats, storage, and Gemini AI allocations.</p>
+    </div>
+
+    <!-- Pricing Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Starter Plan -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Starter</h3>
+                <p class="text-xs text-slate-400">For indie hackers and hobby development.</p>
+                <div class="text-3xl font-extrabold text-white">$0 <span class="text-xs text-slate-400 font-normal">/ mo</span></div>
+                <ul class="space-y-2 text-xs text-slate-300">
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Up to 3 Team Members</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> 2 Active Projects</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> 20 AI Generations / mo</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Kanban Board & Time Logs</li>
+                </ul>
+            </div>
+            <button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition">Current Plan</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="bg-slate-900/90 border-2 border-indigo-500 rounded-2xl p-6 flex flex-col justify-between space-y-6 relative shadow-xl shadow-indigo-500/10">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">Most Popular</span>
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Professional</h3>
+                <p class="text-xs text-slate-400">For fast-growing engineering startups.</p>
+                <div class="text-3xl font-extrabold text-white">$29 <span class="text-xs text-slate-400 font-normal">/ mo</span></div>
+                <ul class="space-y-2 text-xs text-slate-300">
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Up to 15 Team Members</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Unlimited Projects</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> 500 AI Generations / mo</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Git Integration Webhooks</li>
+                </ul>
+            </div>
+            <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition">Upgrade to Pro</button>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Business</h3>
+                <p class="text-xs text-slate-400">For scaling tech companies and agencies.</p>
+                <div class="text-3xl font-extrabold text-white">$79 <span class="text-xs text-slate-400 font-normal">/ mo</span></div>
+                <ul class="space-y-2 text-xs text-slate-300">
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Up to 50 Members</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Priority Gemini GenAI</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Advanced Sprint Telemetry</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Custom Domain & Branding</li>
+                </ul>
+            </div>
+            <button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition">Upgrade to Business</button>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Enterprise</h3>
+                <p class="text-xs text-slate-400">Custom SLA, dedicated VPC, SAML/SSO.</p>
+                <div class="text-3xl font-extrabold text-white">Custom</div>
+                <ul class="space-y-2 text-xs text-slate-300">
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Unlimited Everything</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Okta / SAML 2.0 SSO</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Dedicated Database Tenant</li>
+                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> 99.99% Uptime SLA</li>
+                </ul>
+            </div>
+            <button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition">Contact Sales</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

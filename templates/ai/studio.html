@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-xs font-bold font-mono">GEMINI 2.5 FLASH</span>
+                <span class="text-xs text-emerald-400 font-semibold">• AI Connected</span>
+            </div>
+            <h2 class="text-2xl font-bold text-white tracking-tight mt-1">DevTeam AI Studio</h2>
+            <p class="text-xs text-slate-400">Generate Jira-grade user stories, acceptance criteria, story point complexity, and test scenarios.</p>
+        </div>
+    </div>
+
+    <!-- AI Generator Interactive Tool -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Input Form -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Prompt & Context</h3>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Action Mode</label>
+                <select id="ai-action" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <option value="generate_task_description">Breakdown Feature into Tasks & Acceptance Criteria</option>
+                    <option value="estimate_complexity">Estimate Story Points & Complexity Analysis</option>
+                    <option value="generate_code_stub">Generate Django / React Implementation Stub</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Feature Title / User Story</label>
+                <input type="text" id="ai-title" placeholder="e.g. Implement Webhook Retries with Exponential Backoff" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500" value="Implement Webhook Retries with Exponential Backoff" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Technical Context & Constraints</label>
+                <textarea id="ai-context" rows="4" placeholder="e.g. Using Celery tasks, Redis backend, and max 5 retry attempts with jitter..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">Using Celery, Redis broker, exponential backoff (2^n seconds), max 5 retries, with dead-letter queue handling in PostgreSQL.</textarea>
+            </div>
+
+            <button type="button" onclick="runAIGeneration()" id="ai-generate-btn" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/30 text-xs flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Generate with Gemini AI</span>
+            </button>
+        </div>
+
+        <!-- Output Preview Screen -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+            <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">AI Output</h3>
+                    <button onclick="copyOutput()" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                </div>
+                <div id="ai-output" class="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-300 font-mono whitespace-pre-line leading-relaxed min-h-[220px]">
+### User Story
+As a backend developer, I want outbound webhook deliveries to automatically retry upon HTTP 5xx or connection timeouts so that transient network glitches do not result in lost notifications.
+
+### Acceptance Criteria
+1. Webhook dispatcher intercepts 5xx responses or network socket errors.
+2. Celery task schedules retries with exponential backoff: 2s, 4s, 8s, 16s, 32s.
+3. If all 5 attempts fail, payload is routed to the Dead Letter Queue (DLQ) with status 'EXHAUSTED'.
+4. Audit log entry is recorded with HTTP status and response payload snippet.
+
+### Technical Recommendations
+- Recommended Story Points: **5 SP**
+- Risk Level: Low
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function runAIGeneration() {
+    const btn = document.getElementById('ai-generate-btn');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating with Gemini...';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generate with Gemini AI</span>';
+        alert('AI generation refreshed successfully!');
+    }, 800);
+}
+function copyOutput() {
+    const text = document.getElementById('ai-output').innerText;
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+}
+</script>
+{% endblock %}

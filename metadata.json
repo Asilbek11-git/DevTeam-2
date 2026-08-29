@@ -1,0 +1,6 @@
+{
+  "name": "DevTeam",
+  "description": "Production-ready SaaS Project & Task Management platform for software development teams with multi-tenancy, Kanban, Sprints, Time Tracking, GitHub/GitLab integrations, Automations, AI tools, Multi-gateway Billing (Stripe, Payme, Click), and SuperAdmin Revenue Analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

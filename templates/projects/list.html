@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Software Projects</h2>
+            <p class="text-xs text-slate-400">Manage repositories, milestones, budgets, and engineering velocity</p>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/20 transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>New Project</span>
+        </button>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 space-y-4 hover:border-slate-700 transition relative flex flex-col justify-between">
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-xs font-mono font-bold border border-sky-500/20">{{ project.key }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded {% if project.health == 'ON_TRACK' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% endif %}">
+                        {{ project.health }}
+                    </span>
+                </div>
+
+                <h3 class="text-base font-bold text-white">
+                    <a href="{% url 'project-detail' project.id %}" class="hover:text-indigo-400 transition">{{ project.name }}</a>
+                </h3>
+
+                <p class="text-xs text-slate-400 line-clamp-2">{{ project.description|default:"Engineering repository and product roadmap." }}</p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 text-slate-400">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Lead: {{ project.lead.username|default:"Unassigned" }}</span>
+                </div>
+                <a href="{% url 'project-detail' project.id %}" class="text-indigo-400 hover:text-indigo-300 font-semibold">View →</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 py-12 text-center text-slate-400 bg-slate-900/40 border border-slate-800 rounded-2xl">
+            No projects found in this workspace.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
