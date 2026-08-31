@@ -9,5 +9,7 @@ router.register(r'api/subscriptions', SubscriptionViewSet, basename='subscriptio
 urlpatterns = [
     path('', pricing_plans_view, name='billing-plans'),
     path('plans/', pricing_plans_view, name='billing-plans-direct'),
+    path('overview/', pricing_plans_view, name='billing'),
     path('invoices/', invoices_view, name='billing-invoices'),
+    path('my-invoices/', invoices_view, name='invoices'),
 ] + router.urls

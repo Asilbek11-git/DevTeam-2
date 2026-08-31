@@ -7,5 +7,7 @@ router.register(r'api', BoardViewSet, basename='boards-api')
 
 urlpatterns = [
     path('', board_template_view, name='kanban-board'),
+    path('kanban/', board_template_view, name='kanban'),
+    path('boards/', board_template_view, name='boards'),
     path('project/<uuid:project_id>/', board_template_view, name='project-kanban-board'),
 ] + router.urls

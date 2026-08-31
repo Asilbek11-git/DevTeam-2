@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title|default:"Engineering Portfolio & Case Studies" }}{% endblock %}
+
+{% block content %}
+<div class="h-full overflow-y-auto custom-scrollbar p-6 space-y-8 max-w-7xl mx-auto">
+    <!-- Public Header Banner -->
+    <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-purple-950/60 border border-slate-800 rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+        <div class="max-w-3xl space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Engineering Case Studies & Architectures</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                {{ owner_profile.full_name|default:"DevTeam" }} Portfolio
+            </h1>
+            <p class="text-sm text-slate-300 leading-relaxed">
+                {{ owner_profile.bio|default:"Production-grade systems, microservice architectures, SaaS platforms, and enterprise solutions engineered with reliability and high performance." }}
+            </p>
+            {% if owner_profile %}
+            <div class="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-400">
+                {% if owner_profile.github_url %}
+                <a href="{{ owner_profile.github_url }}" target="_blank" class="hover:text-white transition flex items-center gap-1.5"><i class="fa-brands fa-github text-sm"></i> GitHub</a>
+                {% endif %}
+                {% if owner_profile.linkedin_url %}
+                <a href="{{ owner_profile.linkedin_url }}" target="_blank" class="hover:text-white transition flex items-center gap-1.5"><i class="fa-brands fa-linkedin text-sm"></i> LinkedIn</a>
+                {% endif %}
+                {% if owner_profile.website_url %}
+                <a href="{{ owner_profile.website_url }}" target="_blank" class="hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-globe text-sm"></i> Website</a>
+                {% endif %}
+                {% if owner_profile.hourly_rate %}
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 font-mono">${{ owner_profile.hourly_rate }}/hr</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tech Stacks Filter Pills -->
+    {% if all_technologies %}
+    <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-semibold text-slate-400 mr-2">Filter by Tech:</span>
+        <a href="{% url 'portfolio-public-list' %}" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition {% if not selected_tech %}bg-indigo-600 text-white shadow-sm{% else %}bg-slate-900 text-slate-400 hover:text-white border border-slate-800{% endif %}">
+            All Technologies
+        </a>
+        {% for tech in all_technologies %}
+        <a href="?tech={{ tech }}" class="px-3 py-1.5 rounded-xl text-xs font-semibold font-mono transition {% if selected_tech == tech %}bg-indigo-600 text-white shadow-sm{% else %}bg-slate-900 text-slate-400 hover:text-white border border-slate-800{% endif %}">
+            {{ tech }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in portfolio_items %}
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-slate-700 transition flex flex-col justify-between group">
+            <div>
+                <!-- Cover Image -->
+                <div class="h-44 bg-slate-900 overflow-hidden relative border-b border-slate-800/80">
+                    {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-tr from-slate-900 to-indigo-950/40 text-indigo-400 text-3xl">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    {% endif %}
+                    {% if item.is_featured %}
+                    <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/90 text-black shadow">
+                        <i class="fa-solid fa-star text-[9px] mr-1"></i>Featured
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="p-5 space-y-3">
+                    <h3 class="text-base font-bold text-white group-hover:text-indigo-400 transition">
+                        <a href="{% url 'portfolio-public-detail' item.slug %}">{{ item.title }}</a>
+                    </h3>
+                    <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">{{ item.short_description }}</p>
+
+                    <!-- Technologies -->
+                    {% if item.technologies %}
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        {% for tech in item.technologies|slice:":5" %}
+                        <span class="px-2 py-0.5 rounded-md bg-slate-900 text-indigo-300 text-[10px] font-mono border border-slate-800">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="p-5 pt-0 border-t border-slate-800/60 mt-3">
+                <div class="flex items-center justify-between pt-3 text-xs">
+                    <a href="{% url 'portfolio-public-detail' item.slug %}" class="font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                        <span>Read Case Study</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                    <div class="flex items-center gap-2">
+                        {% if item.github_url %}
+                        <a href="{{ item.github_url }}" target="_blank" title="GitHub Source" class="p-1.5 rounded-lg bg-slate-900 text-slate-400 hover:text-white transition">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        {% endif %}
+                        {% if item.live_demo_url %}
+                        <a href="{{ item.live_demo_url }}" target="_blank" title="Live Application" class="p-1.5 rounded-lg bg-slate-900 text-emerald-400 hover:text-emerald-300 transition">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-16 text-center text-slate-400 bg-slate-950/80 border border-slate-800/80 rounded-2xl">
+            <i class="fa-solid fa-folder-open text-4xl text-slate-600 block mb-3"></i>
+            <h3 class="text-base font-bold text-white">No Case Studies Published Yet</h3>
+            <p class="text-xs text-slate-400 mt-1">Check back soon or contact the team for portfolio inquiries.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

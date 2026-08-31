@@ -28,7 +28,10 @@ class PaymentService:
         now = timezone.now()
         
         # Calculate price with optional coupon
-        price = plan.yearly_price if billing_cycle == 'YEARLY' else plan.monthly_price
+        if billing_cycle == 'YEARLY':
+            price = plan.yearly_price if plan.yearly_price > 0 else (plan.monthly_price * 10)
+        else:
+            price = plan.monthly_price
         
         # Create or update subscription
         subscription, _ = Subscription.objects.update_or_create(

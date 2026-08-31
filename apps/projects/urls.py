@@ -8,5 +8,7 @@ router.register(r'api', ProjectViewSet, basename='projects-api')
 
 urlpatterns = [
     path('', project_list_template_view, name='project-list'),
+    path('list/', project_list_template_view, name='projects'),
+    path('create/', project_list_template_view, name='project-create'),
     path('<uuid:pk>/', project_detail_template_view, name='project-detail'),
 ] + router.urls

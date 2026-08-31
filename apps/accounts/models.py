@@ -21,13 +21,24 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('role', 'SUPERADMIN')
         return self.create_user(email, username, password, **extra_fields)
 
+class UserRole(models.TextChoices):
+    ADMIN = 'ADMIN', 'Administrator'
+    PROJECT_MANAGER = 'PROJECT_MANAGER', 'Project Manager'
+    LEAD_DEVELOPER = 'LEAD_DEVELOPER', 'Lead Developer'
+    DEVELOPER = 'DEVELOPER', 'Developer'
+    CLIENT = 'CLIENT', 'Client'
+    VIEWER = 'VIEWER', 'Viewer'
+    MEMBER = 'MEMBER', 'Member'
+    SUPERADMIN = 'SUPERADMIN', 'SuperAdmin'
+    USER = 'USER', 'Standard User'
+
 class User(AbstractUser, TimeStampedModel):
     class GlobalRole(models.TextChoices):
         SUPERADMIN = 'SUPERADMIN', 'SuperAdmin'
         USER = 'USER', 'Standard User'
 
     email = models.EmailField(unique=True, db_index=True)
-    role = models.CharField(max_length=20, choices=GlobalRole.choices, default=GlobalRole.USER)
+    role = models.CharField(max_length=30, default=GlobalRole.USER)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     bio = models.TextField(max_length=500, blank=True)
     job_title = models.CharField(max_length=100, blank=True, default='Software Engineer')

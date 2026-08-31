@@ -27,51 +27,51 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white">
       {/* Top Banner & Nav */}
-      <nav className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-            <Code2 className="w-5 h-5" />
+      <nav className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        <div className="flex items-center space-x-2 sm:space-x-2.5">
+          <div className="w-7 h-7 sm:w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <Code2 className="w-4 h-4 sm:w-5 h-5" />
           </div>
-          <span className="font-bold text-lg text-white">DevTeam<span className="text-blue-400 text-xs ml-1 px-1.5 py-0.5 rounded bg-blue-500/20 border border-blue-500/30">SaaS</span></span>
+          <span className="font-bold text-base sm:text-lg text-white">DevTeam<span className="text-blue-400 text-[10px] sm:text-xs ml-1 px-1.5 py-0.5 rounded bg-blue-500/20 border border-blue-500/30">SaaS</span></span>
         </div>
 
-        <div className="flex items-center space-x-4 text-xs font-medium">
+        <div className="flex items-center space-x-2 sm:space-x-4 text-xs font-medium">
           <button
             onClick={onEnterApp}
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold shadow-md shadow-blue-500/20 transition-all flex items-center space-x-1.5"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold shadow-md shadow-blue-500/20 transition-all flex items-center space-x-1.5 cursor-pointer"
           >
-            <span>Launch Live App</span>
+            <span>Launch App</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative px-6 pt-16 pb-20 max-w-6xl mx-auto text-center space-y-8">
+      <section className="relative px-4 sm:px-6 pt-10 sm:pt-16 pb-14 sm:pb-20 max-w-6xl mx-auto text-center space-y-6 sm:space-y-8">
         <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-          <span>Next-Generation SaaS Project Management for Engineering Teams</span>
+          <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse shrink-0" />
+          <span>Next-Generation SaaS Project Management</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-100 tracking-tight leading-tight max-w-4xl mx-auto">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-100 tracking-tight leading-tight max-w-4xl mx-auto">
           Ship Software Faster with <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Agile Sprints, VCS & AI</span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm sm:text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
           The all-in-one developer workspace with multi-tenant workspaces, interactive Kanban with WIP limits, automated GitHub/GitLab webhook synchronization, live time tracking, and multi-gateway billing (Stripe, Payme, Click).
         </p>
 
         {/* 1-Click Persona Simulator */}
-        <div className="pt-4 max-w-3xl mx-auto bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-3">
+        <div className="pt-2 sm:pt-4 max-w-3xl mx-auto bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-2xl space-y-3 text-left sm:text-center">
           <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
             ⚡ Instant 1-Click Interactive Demo Login:
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5">
             {personas.map((p, idx) => (
               <button
                 key={idx}
                 onClick={() => onSelectPersona(p.email)}
-                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 rounded-xl text-left transition-all group"
+                className="p-3 bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 rounded-xl text-left transition-all group cursor-pointer"
               >
                 <div className="text-xs font-bold text-slate-200 group-hover:text-blue-300 transition-colors">{p.name}</div>
                 <div className="text-[11px] text-slate-400">{p.role}</div>
@@ -85,14 +85,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Feature Highlights Grid */}
-      <section className="px-6 py-16 bg-slate-900/50 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto space-y-12">
+      <section className="px-4 sm:px-6 py-12 sm:py-16 bg-slate-900/50 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-100">Engineered for High-Velocity Dev Teams</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-100">Engineered for High-Velocity Dev Teams</h2>
             <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">Everything you need to orchestrate software development from sprint backlog to production deployment.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-xs">
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3 shadow-sm">
               <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
                 <LayoutDashboard className="w-5 h-5" />

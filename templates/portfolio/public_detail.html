@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.title }} — Architecture & Case Study{% endblock %}
+
+{% block content %}
+<div class="h-full overflow-y-auto custom-scrollbar p-6 space-y-6 max-w-4xl mx-auto">
+    <!-- Breadcrumb Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <a href="{% url 'portfolio-public-list' %}" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 font-medium">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back to Portfolio</span>
+        </a>
+        <div class="flex items-center gap-2">
+            {% if item.github_url %}
+            <a href="{{ item.github_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-800 transition">
+                <i class="fa-brands fa-github text-sm"></i>
+                <span>Repository</span>
+            </a>
+            {% endif %}
+            {% if item.live_demo_url %}
+            <a href="{{ item.live_demo_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Live Demo</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Case Study Content -->
+    <div class="bg-slate-950/80 border border-slate-800/80 rounded-3xl overflow-hidden p-6 sm:p-8 space-y-6">
+        <!-- Title & Badges -->
+        <div class="space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                    {{ item.client_type|default:"Case Study" }}
+                </span>
+                {% if item.completion_date %}
+                <span class="text-xs text-slate-400 font-mono">Completed: {{ item.completion_date }}</span>
+                {% endif %}
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                {{ item.title }}
+            </h1>
+            <p class="text-sm text-slate-300 leading-relaxed font-medium">
+                {{ item.short_description }}
+            </p>
+        </div>
+
+        <!-- Cover Image -->
+        {% if item.image %}
+        <div class="rounded-2xl overflow-hidden border border-slate-800 max-h-96 w-full">
+            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover" />
+        </div>
+        {% endif %}
+
+        <!-- Tech Stacks -->
+        {% if item.technologies %}
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/60 space-y-2">
+            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Technologies & Architecture</h4>
+            <div class="flex flex-wrap gap-2">
+                {% for tech in item.technologies %}
+                <span class="px-3 py-1 rounded-lg bg-slate-800 text-indigo-300 text-xs font-mono font-medium border border-slate-700">{{ tech }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Full Narrative / Description -->
+        <div class="space-y-4 pt-2">
+            <h3 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-code-branch text-indigo-400"></i>
+                <span>Architectural Overview & Engineering Solution</span>
+            </h3>
+            <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 whitespace-pre-line">
+                {{ item.description|default:"Detailed architectural engineering, backend schema design, microservice integration, and secure deployment pipelines." }}
+            </div>
+        </div>
+
+        <!-- Measurable Results -->
+        {% if item.results %}
+        <div class="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/30 to-slate-900 border border-emerald-800/40 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Measurable Impact & Client Results</span>
+            </h4>
+            <p class="text-xs text-slate-200 leading-relaxed">{{ item.results }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

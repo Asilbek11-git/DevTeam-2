@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Business Expenses — DevTeam{% endblock %}
+
+{% block content %}
+<div class="h-full overflow-y-auto custom-scrollbar p-6 space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-receipt text-rose-400"></i>
+                <span>Business & Operational Expenses</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Track infrastructure, salaries, software tools, marketing, and office costs.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'finance-dashboard' %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                <span>Finance Dashboard</span>
+            </a>
+            <a href="{% url 'expense-create' %}" class="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-rose-600/20">
+                <i class="fa-solid fa-plus"></i>
+                <span>Log New Expense</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4">
+        <form method="GET" action="{% url 'expense-list' %}" class="flex flex-col sm:flex-row gap-3">
+            <div class="flex-1 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search expenses by title or description..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div class="w-full sm:w-48">
+                <select name="category" onchange="this.form.submit()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <option value="ALL" {% if category_filter == 'ALL' %}selected{% endif %}>All Categories</option>
+                    {% for cat_code, cat_label in category_choices %}
+                    <option value="{{ cat_code }}" {% if category_filter == cat_code %}selected{% endif %}>{{ cat_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition">
+                Filter
+            </button>
+            {% if search_query or category_filter != 'ALL' %}
+            <a href="{% url 'expense-list' %}" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-semibold flex items-center justify-center">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
+                    <tr>
+                        <th class="py-3.5 px-4">Title & Description</th>
+                        <th class="py-3.5 px-4">Category</th>
+                        <th class="py-3.5 px-4">Date</th>
+                        <th class="py-3.5 px-4 text-right">Amount</th>
+                        <th class="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                    {% for exp in expenses %}
+                    <tr class="hover:bg-slate-900/40 transition">
+                        <td class="py-3.5 px-4">
+                            <p class="font-bold text-white text-sm">{{ exp.title }}</p>
+                            {% if exp.description %}
+                            <p class="text-[11px] text-slate-400 mt-0.5">{{ exp.description|truncatechars:60 }}</p>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900 text-slate-300 border border-slate-800">
+                                {{ exp.get_category_display }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-slate-400 font-mono">
+                            {{ exp.expense_date }}
+                        </td>
+                        <td class="py-3.5 px-4 text-right font-mono font-bold text-rose-400 text-sm">
+                            -${{ exp.amount }}
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex items-center gap-1.5">
+                                <a href="{% url 'expense-edit' exp.id %}" class="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <a href="{% url 'expense-delete' exp.id %}" onclick="return confirm('Delete this expense?');" class="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-950/40 text-rose-400 transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-receipt text-3xl text-slate-600 block mb-2"></i>
+                            No expenses matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if expenses.has_other_pages %}
+        <div class="flex items-center justify-between p-4 border-t border-slate-800 text-xs text-slate-400">
+            <div>
+                Showing page {{ expenses.number }} of {{ expenses.paginator.num_pages }}
+            </div>
+            <div class="flex items-center gap-1">
+                {% if expenses.has_previous %}
+                <a href="?page={{ expenses.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200">Previous</a>
+                {% endif %}
+                {% if expenses.has_next %}
+                <a href="?page={{ expenses.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

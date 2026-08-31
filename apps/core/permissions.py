@@ -35,12 +35,16 @@ class HasWorkspaceRole(BasePermission):
     def has_permission(self, request, view):
         if not (request.user and request.user.is_authenticated):
             return False
-        if request.user.is_superuser:
+        if request.user.is_superuser or getattr(request.user, 'role', '') == 'SUPERADMIN':
             return True
         # Read operations allowed for viewers
         if request.method in SAFE_METHODS:
             return True
         role = getattr(request, 'current_workspace_role', None)
+        if not role:
+            _, role = get_active_workspace(request)
+        if not role:
+            role = getattr(request.user, 'role', None)
         if role and role in self.allowed_roles:
             return True
         return False

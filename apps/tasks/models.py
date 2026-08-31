@@ -52,6 +52,10 @@ class Task(TenantScopedModel):
             models.Index(fields=['key']),
         ]
 
+    @property
+    def is_subtask(self):
+        return bool(self.parent_task_id)
+
     def save(self, *args, **kwargs):
         if not self.key and self.project:
             last_num = Task.objects.filter(project=self.project).count() + 1

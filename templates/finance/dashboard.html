@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Finance & Revenue Command Center — DevTeam{% endblock %}
+
+{% block content %}
+<div class="h-full overflow-y-auto custom-scrollbar p-6 space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                <span>Financial & Profit Command Center</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Real-time revenue metrics, profit margins, operational expenses, and cash flow forecasts.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'expense-create' %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-receipt text-amber-400"></i>
+                <span>Log Expense</span>
+            </a>
+            <a href="{% url 'expense-list' %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-list text-indigo-400"></i>
+                <span>All Expenses</span>
+            </a>
+            <a href="{% url 'billing-invoices' %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Invoices</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Executive Financial KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Revenue -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Total Revenue (All-Time)</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-vault"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-white mt-2 font-mono">${{ total_revenue }}</p>
+            <p class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                <span>${{ month_revenue }} this month</span>
+            </p>
+        </div>
+
+        <!-- Net Profit -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Net Profit</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-white mt-2 font-mono">${{ net_profit }}</p>
+            <p class="text-[11px] text-indigo-400 mt-1">
+                Margin: <span class="font-bold font-mono">{{ profit_margin }}%</span>
+            </p>
+        </div>
+
+        <!-- Total Expenses -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Operating Expenses</span>
+                <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-rose-400 mt-2 font-mono">${{ total_expenses }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+                <span>${{ month_expenses }} this month</span>
+            </p>
+        </div>
+
+        <!-- Pending Receivables -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Pending Receivables</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-amber-400 mt-2 font-mono">${{ pending_receivables }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+                <span>Draft / Pending Invoices</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Monthly History Bars & Category Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 6-Month Revenue & Profit Trends -->
+        <div class="lg:col-span-2 bg-slate-950/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-indigo-400"></i>
+                    <span>6-Month Financial Performance</span>
+                </h3>
+                <div class="flex items-center gap-3 text-[11px]">
+                    <span class="flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span> Revenue</span>
+                    <span class="flex items-center gap-1.5 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span> Expense</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-6 gap-2 sm:gap-4 pt-4">
+                {% for item in monthly_history %}
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-full h-36 bg-slate-900/80 rounded-xl p-1 flex items-end justify-center gap-1 relative">
+                        <div style="height: {% if item.revenue > 0 %}{{ item.revenue|floatformat:0 }}%{% else %}8%{% endif %}; max-height: 95%;" class="w-1/2 bg-emerald-500 rounded-md transition-all duration-500" title="Revenue: ${{ item.revenue }}"></div>
+                        <div style="height: {% if item.expense > 0 %}{{ item.expense|floatformat:0 }}%{% else %}4%{% endif %}; max-height: 95%;" class="w-1/2 bg-rose-500 rounded-md transition-all duration-500" title="Expense: ${{ item.expense }}"></div>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-400 whitespace-nowrap">{{ item.month_name }}</span>
+                    <span class="text-[10px] font-mono font-bold {% if item.profit >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">${{ item.profit|floatformat:0 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Expenses by Category Breakdown -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                <i class="fa-solid fa-pie-chart text-amber-400"></i>
+                <span>Expenses Breakdown</span>
+            </h3>
+
+            <div class="space-y-3">
+                {% for cat in category_totals %}
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-300 font-medium">{{ cat.label }}</span>
+                        <span class="font-mono text-white font-bold">${{ cat.amount }} <span class="text-slate-400 text-[10px]">({{ cat.percentage }}%)</span></span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-500 to-rose-500 rounded-full" style="width: {{ cat.percentage }}%;"></div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-xs text-slate-400 text-center py-6">No expenses logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Invoices -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice text-emerald-400"></i>
+                    <span>Recent Invoices</span>
+                </h3>
+                <a href="{% url 'billing-invoices' %}" class="text-xs text-indigo-400 hover:underline">View All →</a>
+            </div>
+
+            <div class="space-y-2">
+                {% for inv in recent_invoices %}
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60 text-xs">
+                    <div>
+                        <p class="font-bold text-white font-mono">{{ inv.invoice_number }}</p>
+                        <p class="text-[11px] text-slate-400">{{ inv.client.full_name|default:"Enterprise Client" }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold font-mono text-white">${{ inv.amount }}</p>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if inv.status == 'PAID' %}bg-emerald-500/20 text-emerald-400{% elif inv.status == 'PENDING' %}bg-amber-500/20 text-amber-400{% else %}bg-slate-800 text-slate-400{% endif %}">
+                            {{ inv.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-xs text-slate-400 text-center py-4">No invoices recorded yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Expenses -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-rose-400"></i>
+                    <span>Recent Expenses</span>
+                </h3>
+                <a href="{% url 'expense-list' %}" class="text-xs text-indigo-400 hover:underline">View All →</a>
+            </div>
+
+            <div class="space-y-2">
+                {% for exp in recent_expenses %}
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60 text-xs">
+                    <div>
+                        <p class="font-bold text-white">{{ exp.title }}</p>
+                        <p class="text-[11px] text-slate-400">{{ exp.get_category_display }} • {{ exp.expense_date }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold font-mono text-rose-400">-${{ exp.amount }}</p>
+                        <a href="{% url 'expense-edit' exp.id %}" class="text-[10px] text-slate-400 hover:text-white underline">Edit</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-xs text-slate-400 text-center py-4">No expenses logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

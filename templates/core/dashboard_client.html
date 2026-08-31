@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header with Client Title -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-xs font-bold font-mono uppercase tracking-wider border border-emerald-500/30">
+                    CLIENT PORTAL
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Workspace: <strong class="text-slate-200">{{ workspace.name|default:"Client Workspace" }}</strong></span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Project Status & Deliverables</h1>
+            <p class="text-xs text-slate-400">Review your software deliverables, active milestones, release schedules, and invoices.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{% url 'billing' %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>My Invoices</span>
+            </a>
+            <a href="{% url 'public-portfolio' %}" target="_blank" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-globe text-cyan-400"></i>
+                <span>Our Portfolio</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 3 Client KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <!-- 1. Active Projects -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Active Projects</span>
+                <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-bold text-white">{{ stats.active_projects_count }}</div>
+                <div class="text-[11px] text-emerald-400 mt-0.5 font-medium">
+                    Software deliverables in progress
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Milestones Progress -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Milestone Progress</span>
+                <span class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-bold text-white">{{ stats.milestones_progress_pct }}%</div>
+                <div class="text-[11px] text-blue-400 mt-0.5 font-medium">
+                    {{ stats.completed_milestones }} / {{ stats.total_milestones }} milestones reached
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Billing & Invoices -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Invoices Paid</span>
+                <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i class="fa-solid fa-receipt"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-bold text-white">{{ stats.paid_invoices_count }}</div>
+                <div class="text-[11px] text-indigo-400 mt-0.5 font-medium">
+                    ${{ stats.total_invoiced_amount|floatformat:2 }} settled
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2-Column Section: Milestones & Deliverables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Milestones Roadmaps -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-flag-checkered text-emerald-400 text-xs"></i>
+                    <h3 class="text-sm font-bold text-white">Project Milestones</h3>
+                </div>
+                <span class="text-xs font-mono text-slate-400">{{ stats.completed_milestones }}/{{ stats.total_milestones }} Complete</span>
+            </div>
+
+            <div class="space-y-3">
+                {% for milestone in milestones %}
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full {% if milestone.status == 'COMPLETED' %}bg-emerald-400{% elif milestone.status == 'IN_PROGRESS' %}bg-blue-400{% else %}bg-slate-500{% endif %}"></span>
+                            <span class="text-xs font-bold text-white">{{ milestone.name }}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Project: {{ milestone.project.name }} &bull; Target: {{ milestone.deadline|default:"TBD" }}</p>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {% if milestone.status == 'COMPLETED' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% elif milestone.status == 'IN_PROGRESS' %}bg-blue-500/20 text-blue-400 border border-blue-500/30{% else %}bg-slate-800 text-slate-400{% endif %}">
+                        {{ milestone.get_status_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="py-8 text-center text-slate-500 text-xs">
+                    No active milestones registered.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Deliverables Ready For Review -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-box-open text-blue-400 text-xs"></i>
+                    <h3 class="text-sm font-bold text-white">Deliverables & Releases</h3>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">QA & Verified Features</span>
+            </div>
+
+            <div class="space-y-3">
+                {% for deliverable in deliverables %}
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono text-[10px] font-bold">
+                                {{ deliverable.key }}
+                            </span>
+                            <span class="text-xs font-bold text-white">{{ deliverable.title }}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Project: {{ deliverable.project.name }}</p>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {% if deliverable.status == 'DONE' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% else %}bg-amber-500/20 text-amber-400 border border-amber-500/30{% endif %}">
+                        {{ deliverable.get_status_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="py-8 text-center text-slate-500 text-xs">
+                    Features currently in active development.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

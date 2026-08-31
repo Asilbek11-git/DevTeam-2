@@ -62,21 +62,21 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-xs">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-xs overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
             <FolderGit2 className="w-4 h-4 text-blue-500" />
             <span>Create New Project & Milestone</span>
           </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-200">
+          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-200" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2 space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2 space-y-1">
               <label className="text-slate-400 font-medium">Project Name</label>
               <input
                 type="text"
@@ -90,7 +90,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                     setKey(initials);
                   }
                 }}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 font-medium focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 font-medium focus:outline-none focus:border-blue-500 text-xs sm:text-sm"
               />
             </div>
 
@@ -103,7 +103,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 placeholder="e.g. NME"
                 value={key}
                 onChange={(e) => setKey(e.target.value.toUpperCase())}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-blue-400 font-mono font-bold uppercase focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-blue-400 font-mono font-bold uppercase focus:outline-none focus:border-blue-500 text-xs"
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               placeholder="Scope and deliverables..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 text-xs"
             />
           </div>
 
@@ -125,11 +125,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               type="text"
               value={techStackStr}
               onChange={(e) => setTechStackStr(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono"
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono text-xs"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-slate-400 font-medium">Budget ($ USD)</label>
               <input
@@ -138,7 +138,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 step="1000"
                 value={budget}
                 onChange={(e) => setBudget(parseInt(e.target.value) || 0)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 font-mono"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 font-mono text-xs"
               />
             </div>
 
@@ -148,7 +148,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs"
               />
             </div>
           </div>
@@ -157,13 +157,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-medium"
+              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-medium min-h-[40px]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold shadow-sm"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold shadow-sm min-h-[40px]"
             >
               Create Project
             </button>

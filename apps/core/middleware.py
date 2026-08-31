@@ -13,17 +13,24 @@ class WorkspaceTenantMiddleware(MiddlewareMixin):
     """
     def process_request(self, request):
         request.current_workspace = None
+        request.current_workspace_role = None
         workspace_id = request.headers.get('X-Workspace-ID') or request.session.get('active_workspace_id')
         
-        if workspace_id and getattr(request, 'user', None) and request.user.is_authenticated:
+        if getattr(request, 'user', None) and request.user.is_authenticated:
             from apps.workspaces.models import Workspace, WorkspaceMember
             try:
-                # Ensure the user has membership in this workspace
-                member = WorkspaceMember.objects.filter(
-                    workspace_id=workspace_id,
-                    user=request.user,
-                    is_active=True
-                ).select_related('workspace').first()
+                member = None
+                if workspace_id:
+                    member = WorkspaceMember.objects.filter(
+                        workspace_id=workspace_id,
+                        user=request.user,
+                        is_active=True
+                    ).select_related('workspace').first()
+                if not member:
+                    member = WorkspaceMember.objects.filter(
+                        user=request.user,
+                        is_active=True
+                    ).select_related('workspace').first()
                 if member:
                     request.current_workspace = member.workspace
                     request.current_workspace_role = member.role

@@ -10,6 +10,8 @@ class SprintStatus(models.TextChoices):
     COMPLETED = 'COMPLETED', 'Completed'
     CANCELLED = 'CANCELLED', 'Cancelled'
 
+SprintStatus.PLANNED = SprintStatus.PLANNING
+
 class Sprint(TenantScopedModel):
     project = models.ForeignKey('projects.Project', on_delete=models.CASCADE, related_name='sprints')
     name = models.CharField(max_length=150) # e.g. "Sprint 24: Core Auth & Payment Gateway"

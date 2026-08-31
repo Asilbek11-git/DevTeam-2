@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Client Account Profile — DevTeam{% endblock %}
+
+{% block content %}
+<div class="h-full overflow-y-auto custom-scrollbar p-6 space-y-6 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-building-user text-emerald-400"></i>
+                <span>Client Organization & Profile</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Manage your client account information, company name, billing contacts, and avatar.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button form="client-profile-form" type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save Client Info</span>
+            </button>
+        </div>
+    </div>
+
+    <form id="client-profile-form" method="POST" action="{% url 'user-profile' %}" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Profile Top Card -->
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <!-- Avatar Preview -->
+                <div class="relative group shrink-0">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 p-0.5 shadow-md shadow-emerald-600/20 overflow-hidden flex items-center justify-center">
+                        {% if user_obj.avatar %}
+                        <img id="avatar-preview" src="{{ user_obj.avatar.url }}" alt="{{ user_obj.username }}" class="w-full h-full object-cover rounded-2xl" />
+                        {% else %}
+                        <div id="avatar-preview-fallback" class="w-full h-full bg-slate-900 rounded-2xl flex items-center justify-center text-emerald-400 font-bold text-xl">
+                            {{ client_record.company_name|default:user_obj.username|slice:":2"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <label for="avatar" class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition text-xs font-medium">
+                        <i class="fa-solid fa-camera text-sm mb-1"></i>
+                        <span>Upload</span>
+                    </label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*" class="hidden" onchange="previewAvatar(this)" />
+                </div>
+
+                <div class="flex-1 min-w-0 space-y-2">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-lg font-bold text-white">{{ client_record.full_name|default:user_obj.get_full_name|default:user_obj.username }}</h2>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            Client Account
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300">{{ client_record.company_name|default:"Enterprise Client" }}</p>
+                    <p class="text-[11px] text-slate-400 flex items-center gap-4">
+                        <span><i class="fa-solid fa-envelope text-emerald-400 mr-1.5"></i>{{ user_obj.email }}</span>
+                        <span><i class="fa-solid fa-phone text-slate-400 mr-1.5"></i>{{ client_record.phone|default:"No phone" }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                <i class="fa-solid fa-building text-emerald-400"></i>
+                <span>Company & Contact Details</span>
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Contact Name *</label>
+                    <input type="text" name="full_name" value="{{ client_record.full_name|default:user_obj.get_full_name }}" required placeholder="e.g. Sarah Connor" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Company / Organization *</label>
+                    <input type="text" name="company_name" value="{{ client_record.company_name }}" placeholder="e.g. Cyberdyne Systems Ltd" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Phone Number</label>
+                    <input type="text" name="phone" value="{{ client_record.phone }}" placeholder="+1 (555) 012-3456" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Company Website</label>
+                    <input type="url" name="website" value="{{ client_record.website }}" placeholder="https://example.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Physical / Billing Address</label>
+                <textarea name="address" rows="2" placeholder="e.g. 100 Innovation Way, Suite 400, Austin, TX 78701" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500">{{ client_record.address }}</textarea>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+            <a href="{% url 'dashboard' %}" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold transition">Cancel</a>
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Client Info
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('avatar-preview');
+            var fallback = document.getElementById('avatar-preview-fallback');
+            if (preview) {
+                preview.src = e.target.result;
+            } else if (fallback) {
+                fallback.outerHTML = '<img id="avatar-preview" src="' + e.target.result + '" class="w-full h-full object-cover rounded-2xl" />';
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

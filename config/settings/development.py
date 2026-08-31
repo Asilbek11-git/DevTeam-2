@@ -16,3 +16,8 @@ if os.environ.get('DB_HOST'):
     }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Fast password hasher for tests / local dev
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]

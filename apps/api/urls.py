@@ -56,6 +56,16 @@ class AnalyticsSummaryView(APIView):
             data = ReportService.get_superadmin_saas_metrics()
         return success_response(data=data, message="Metrics retrieved")
 
+class CustomTokenRefreshView(TokenRefreshView):
+    @extend_schema(tags=['Authentication'])
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            return success_response(data=serializer.validated_data, message="Token refreshed successfully")
+        except Exception as e:
+            return error_response(message="Invalid or expired refresh token", errors={"detail": str(e)}, status_code=status.HTTP_400_BAD_REQUEST)
+
 router = DefaultRouter()
 router.register(r'workspaces', WorkspaceViewSet, basename='api-workspaces')
 router.register(r'projects', ProjectViewSet, basename='api-projects')
@@ -74,7 +84,8 @@ urlpatterns = [
     # Authentication Endpoints
     path('auth/register/', RegisterView.as_view(), name='api-auth-register'),
     path('auth/login/', LoginView.as_view(), name='api-auth-login'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='api-token-refresh'),
+    path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name='api-token-refresh'),
+    path('auth/refresh/', CustomTokenRefreshView.as_view(), name='api-auth-refresh'),
     path('auth/profile/', ProfileView.as_view(), name='api-auth-profile'),
     path('auth/change-password/', ChangePasswordView.as_view(), name='api-change-password'),
     path('auth/sessions/', ActiveSessionsView.as_view(), name='api-active-sessions'),

@@ -12,10 +12,10 @@ from datetime import timedelta
 from django.db.models import Sum, Count, Avg, Q
 from django.utils import timezone
 
-from apps.core.permissions import get_active_workspace, manager_or_owner_required
+from apps.core.permissions import get_active_workspace, owner_required, manager_or_owner_required
 from apps.workspaces.models import Workspace, WorkspaceMember, WorkspaceRole, Client, Lead
-from apps.projects.models import Project
-from apps.tasks.models import Task
+from apps.projects.models import Project, Milestone
+from apps.tasks.models import Task, TimeLog
 from apps.sprints.models import Sprint
 from apps.billing.models import Plan, Subscription, Invoice, Expense, Service
 from apps.activity.models import ActivityLog
@@ -28,11 +28,38 @@ def home_view(request):
     plans = Plan.objects.filter(is_active=True).order_by('monthly_price')
     return render(request, 'core/index.html', {'plans': plans})
 
+
 @login_required(login_url='login')
 def dashboard_view(request):
     """
-    Main SaaS productivity, workspace, and owner command center dashboard.
-    Calculates real PostgreSQL / Django ORM data with zero hardcoded metrics.
+    Main entry point for authenticated users.
+    Dispatches to dedicated, isolated dashboards based on the user's role:
+    - OWNER / ADMIN / SUPERADMIN -> Owner Command Center (business, financial & CRM data)
+    - CLIENT -> Client Portal Dashboard (client-specific projects, deliverables, milestones & invoices)
+    - DEVELOPER / LEAD_DEVELOPER / PM / VIEWER -> Team Engineering Dashboard (tasks, sprints, time tracking)
+    """
+    workspace, role = get_active_workspace(request)
+    user = request.user
+    
+    # 1. SuperAdmin / Owner / Admin -> Owner Dashboard
+    if user.is_superuser or getattr(user, 'role', '') == 'SUPERADMIN' or role in ['OWNER', 'ADMIN']:
+        return owner_dashboard_view(request)
+    
+    # 2. Client -> Client Dashboard
+    if role == 'CLIENT' or getattr(user, 'role', '') == 'CLIENT':
+        return client_dashboard_view(request)
+    
+    # 3. Team Member / Developer / Project Manager -> Team Dashboard
+    return team_dashboard_view(request)
+
+
+@login_required(login_url='login')
+@owner_required
+def owner_dashboard_view(request):
+    """
+    Executive Business & Financial Command Center.
+    STRICTLY accessible only to Owner, Admin, and SuperAdmin roles.
+    Calculates real database records for revenue, profit, expenses, leads, and clients.
     """
     workspace, role = get_active_workspace(request)
     now = timezone.now()
@@ -40,12 +67,6 @@ def dashboard_view(request):
     start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     start_of_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
     
-    projects = []
-    tasks = []
-    active_sprint = None
-    recent_activity = []
-    
-    # Initialize all stats
     stats = {
         # Clients
         'total_clients': 0,
@@ -53,7 +74,7 @@ def dashboard_view(request):
         'inactive_clients': 0,
         'new_clients_month': 0,
         
-        # Leads
+        # Leads & CRM
         'total_leads': 0,
         'new_leads': 0,
         'negotiation_leads': 0,
@@ -83,17 +104,22 @@ def dashboard_view(request):
         'pending_payments': Decimal('0.00'),
         'total_expenses': Decimal('0.00'),
         'net_profit': Decimal('0.00'),
+        'paid_invoices_count': 0,
         
         # Team
         'team_members': 1,
         'services_count': 0,
     }
     
+    projects = []
+    tasks = []
+    active_sprint = None
     recent_leads = []
     recent_clients = []
     recent_invoices = []
     lead_stages = []
     monthly_chart_data = []
+    recent_activity = []
 
     if workspace:
         # Projects & Tasks
@@ -104,7 +130,7 @@ def dashboard_view(request):
         stats['total_projects'] = Project.objects.filter(workspace=workspace).count()
         stats['active_projects'] = Project.objects.filter(workspace=workspace, status__in=['PLANNING', 'ACTIVE']).count()
         stats['completed_projects'] = Project.objects.filter(workspace=workspace, status='COMPLETED').count()
-        stats['overdue_projects'] = Project.objects.filter(workspace=workspace, target_end_date__lt=today).exclude(status__in=['COMPLETED', 'ARCHIVED']).count()
+        stats['overdue_projects'] = Project.objects.filter(workspace=workspace, deadline__lt=today).exclude(status__in=['COMPLETED', 'ARCHIVED']).count()
         avg_budget = Project.objects.filter(workspace=workspace).exclude(budget=0).aggregate(Avg('budget'))['budget__avg']
         stats['avg_project_value'] = avg_budget or Decimal('0.00')
 
@@ -145,6 +171,7 @@ def dashboard_view(request):
         stats['month_revenue'] = paid_inv.filter(paid_at__gte=start_of_month).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         stats['year_revenue'] = paid_inv.filter(paid_at__gte=start_of_year).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         stats['pending_payments'] = Invoice.objects.filter(workspace=workspace, status=Invoice.Status.DRAFT).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        stats['paid_invoices_count'] = paid_inv.count()
         
         stats['total_expenses'] = Expense.objects.filter(workspace=workspace).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         stats['net_profit'] = stats['total_revenue'] - stats['total_expenses']
@@ -166,13 +193,12 @@ def dashboard_view(request):
                 'profit': float(rev - exp)
             })
 
-    is_owner_or_admin = (role in ['OWNER', 'ADMIN']) or request.user.is_superuser
     owner_profile = OwnerProfile.objects.filter(user=request.user).first()
 
     context = {
         'workspace': workspace,
-        'role': role,
-        'is_owner_or_admin': is_owner_or_admin,
+        'role': role or 'OWNER',
+        'is_owner_or_admin': True,
         'owner_profile': owner_profile,
         'projects': projects,
         'tasks': tasks,
@@ -184,16 +210,172 @@ def dashboard_view(request):
         'recent_activity': recent_activity,
         'lead_stages': lead_stages,
         'monthly_chart_data': monthly_chart_data,
-        'page_title': 'Owner Command Center' if is_owner_or_admin else 'Workspace Dashboard',
+        'page_title': 'Owner Command Center',
     }
-    return render(request, 'core/dashboard.html', context)
+    return render(request, 'core/dashboard_owner.html', context)
 
 
 @login_required(login_url='login')
-@manager_or_owner_required
-def owner_dashboard_view(request):
-    """Dedicated route for Owner/SuperAdmin Business Command Center."""
-    return dashboard_view(request)
+def team_dashboard_view(request):
+    """
+    Developer, Lead Developer, and Team Member Dashboard.
+    Focuses entirely on assigned tasks, sprints, velocity, and project timelines.
+    ZERO financial or owner business information is rendered or exposed.
+    """
+    workspace, role = get_active_workspace(request)
+    now = timezone.now()
+    today = now.date()
+    user = request.user
+    
+    my_tasks = []
+    in_progress_tasks = []
+    completed_recent_tasks = []
+    projects = []
+    active_sprint = None
+    time_logged_today_minutes = 0
+    time_logged_week_minutes = 0
+    
+    stats = {
+        'my_assigned_tasks': 0,
+        'my_in_progress_tasks': 0,
+        'my_completed_tasks': 0,
+        'my_overdue_tasks': 0,
+        'total_active_projects': 0,
+        'sprint_completed_sp': 0,
+        'sprint_total_sp': 0,
+        'sprint_progress_pct': 0,
+    }
+    
+    if workspace:
+        # My assigned tasks
+        user_tasks_qs = Task.objects.filter(workspace=workspace, assignee=user)
+        stats['my_assigned_tasks'] = user_tasks_qs.exclude(status__in=['DONE', 'CANCELLED']).count()
+        stats['my_in_progress_tasks'] = user_tasks_qs.filter(status='IN_PROGRESS').count()
+        stats['my_completed_tasks'] = user_tasks_qs.filter(status='DONE').count()
+        stats['my_overdue_tasks'] = user_tasks_qs.filter(due_date__lt=today).exclude(status__in=['DONE', 'CANCELLED']).count()
+        
+        my_tasks = user_tasks_qs.exclude(status__in=['DONE', 'CANCELLED']).select_related('project', 'sprint').order_by('due_date', '-priority')[:8]
+        in_progress_tasks = user_tasks_qs.filter(status='IN_PROGRESS').select_related('project')[:5]
+        completed_recent_tasks = user_tasks_qs.filter(status='DONE').select_related('project').order_by('-updated_at')[:5]
+        
+        # Workspace Projects (Non-financial summary: status, deadline, health)
+        projects = Project.objects.filter(workspace=workspace).exclude(status='ARCHIVED').select_related('lead').order_by('-created_at')[:6]
+        stats['total_active_projects'] = Project.objects.filter(workspace=workspace, status__in=['PLANNING', 'ACTIVE']).count()
+        
+        # Active Sprint
+        active_sprint = Sprint.objects.filter(workspace=workspace, status='ACTIVE').first()
+        if active_sprint:
+            stats['sprint_completed_sp'] = active_sprint.completed_story_points
+            stats['sprint_total_sp'] = active_sprint.total_story_points
+            if active_sprint.total_story_points > 0:
+                stats['sprint_progress_pct'] = int((active_sprint.completed_story_points / active_sprint.total_story_points) * 100)
+        
+        # Time tracking summary for current user
+        seven_days_ago = now - timedelta(days=7)
+        logs_qs = TimeLog.objects.filter(workspace=workspace, user=user)
+        today_logs = logs_qs.filter(start_time__date=today).aggregate(Sum('duration_minutes'))['duration_minutes__sum'] or 0
+        week_logs = logs_qs.filter(start_time__gte=seven_days_ago).aggregate(Sum('duration_minutes'))['duration_minutes__sum'] or 0
+        time_logged_today_minutes = today_logs
+        time_logged_week_minutes = week_logs
+
+    context = {
+        'workspace': workspace,
+        'role': role or 'DEVELOPER',
+        'is_owner_or_admin': False,
+        'stats': stats,
+        'my_tasks': my_tasks,
+        'in_progress_tasks': in_progress_tasks,
+        'completed_recent_tasks': completed_recent_tasks,
+        'projects': projects,
+        'active_sprint': active_sprint,
+        'time_logged_today_hours': round(time_logged_today_minutes / 60, 1),
+        'time_logged_week_hours': round(time_logged_week_minutes / 60, 1),
+        'page_title': 'Developer Workspace Dashboard',
+    }
+    return render(request, 'core/dashboard_team.html', context)
+
+
+@login_required(login_url='login')
+def client_dashboard_view(request):
+    """
+    Client Portal Dashboard.
+    Provides clients with a clear, dedicated view of their projects, active deliverables,
+    milestones, progress, and their own invoices.
+    Clients NEVER see owner profit/expenses, internal leads, or other clients' information.
+    """
+    workspace, role = get_active_workspace(request)
+    user = request.user
+    
+    client_record = None
+    client_projects = []
+    client_invoices = []
+    client_milestones = []
+    deliverables = []
+    
+    stats = {
+        'active_projects_count': 0,
+        'completed_milestones': 0,
+        'total_milestones': 0,
+        'milestones_progress_pct': 0,
+        'pending_invoices_count': 0,
+        'paid_invoices_count': 0,
+        'total_invoiced_amount': Decimal('0.00'),
+    }
+    
+    if workspace:
+        # Match client record by linked user account or email
+        client_record = Client.objects.filter(
+            Q(workspace=workspace) & (Q(user=user) | Q(email__iexact=user.email) | Q(owner=user))
+        ).first()
+        
+        # If client model matches
+        if client_record:
+            client_invoices_qs = Invoice.objects.filter(workspace=workspace, client=client_record)
+        else:
+            client_invoices_qs = Invoice.objects.none()
+        
+        client_invoices = client_invoices_qs.order_by('-created_at')[:10]
+        
+        # Client projects: filter by workspace projects
+        client_projects_qs = Project.objects.filter(workspace=workspace).exclude(status='ARCHIVED')
+        stats['active_projects_count'] = client_projects_qs.filter(status__in=['PLANNING', 'ACTIVE']).count()
+        client_projects = client_projects_qs.order_by('-created_at')[:6]
+        
+        # Milestones
+        milestones_qs = Milestone.objects.filter(project__in=client_projects_qs)
+        stats['total_milestones'] = milestones_qs.count()
+        stats['completed_milestones'] = milestones_qs.filter(status=Milestone.Status.COMPLETED).count()
+        if stats['total_milestones'] > 0:
+            stats['milestones_progress_pct'] = int((stats['completed_milestones'] / stats['total_milestones']) * 100)
+        client_milestones = milestones_qs.select_related('project').order_by('deadline')[:8]
+        
+        # Invoices stats for this client
+        stats['paid_invoices_count'] = client_invoices_qs.filter(status=Invoice.Status.PAID).count()
+        stats['pending_invoices_count'] = client_invoices_qs.filter(status=Invoice.Status.DRAFT).count()
+        stats['total_invoiced_amount'] = client_invoices_qs.filter(status=Invoice.Status.PAID).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        
+        # Deliverables / Completed Tasks ready for review
+        deliverables = Task.objects.filter(workspace=workspace, project__in=client_projects_qs, status__in=['QA', 'DONE']).select_related('project').order_by('-updated_at')[:6]
+
+    # Owner / Primary Contact info
+    lead_contact = None
+    if workspace and workspace.owner:
+        lead_contact = OwnerProfile.objects.filter(user=workspace.owner).first()
+
+    context = {
+        'workspace': workspace,
+        'role': 'CLIENT',
+        'is_owner_or_admin': False,
+        'client_record': client_record,
+        'projects': client_projects,
+        'milestones': client_milestones,
+        'deliverables': deliverables,
+        'invoices': client_invoices,
+        'stats': stats,
+        'lead_contact': lead_contact,
+        'page_title': 'Client Portal Dashboard',
+    }
+    return render(request, 'core/dashboard_client.html', context)
 
 
 @login_required(login_url='login')

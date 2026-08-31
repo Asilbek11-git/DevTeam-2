@@ -4,15 +4,17 @@ from .views import (
     RegisterView, LoginView, ProfileView, ChangePasswordView, ActiveSessionsView,
     login_template_view, register_template_view, logout_template_view
 )
-from .profile_views import owner_profile_view
+from .profile_views import profile_dispatch_view, owner_profile_view, user_profile_view, client_profile_view
 
 urlpatterns = [
     # Web Authentication Routes (Django Templates)
     path('login/', login_template_view, name='login'),
     path('register/', register_template_view, name='register'),
     path('logout/', logout_template_view, name='logout'),
-    path('profile/', owner_profile_view, name='user-profile'),
+    path('profile/', profile_dispatch_view, name='user-profile'),
     path('profile/owner/', owner_profile_view, name='owner-profile-direct'),
+    path('profile/user/', user_profile_view, name='user-profile-direct'),
+    path('profile/client/', client_profile_view, name='client-profile-direct'),
 
 
     # REST API Token & Profile Endpoints

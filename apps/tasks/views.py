@@ -57,6 +57,28 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.save(workspace=workspace, reporter=self.request.user)
 
     @extend_schema(tags=['Tasks'])
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(data=serializer.data, message="Task created successfully", status_code=status.HTTP_201_CREATED)
+
+    @extend_schema(tags=['Tasks'])
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(data=serializer.data, message="Task updated successfully")
+
+    @extend_schema(tags=['Tasks'])
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return success_response(data=None, message="Task deleted successfully", status_code=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(tags=['Tasks'])
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)

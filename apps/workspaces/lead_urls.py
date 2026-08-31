@@ -10,8 +10,9 @@ from .crm_views import (
 urlpatterns = [
     path('', lead_list_view, name='lead-list'),
     path('create/', lead_create_view, name='lead-create'),
-    path('<int:id>/', lead_detail_view, name='lead-detail'),
-    path('<int:id>/edit/', lead_edit_view, name='lead-edit'),
-    path('<int:id>/status/', lead_update_status_view, name='lead-update-status'),
-    path('<int:id>/convert/', lead_convert_view, name='lead-convert'),
+    path('<str:id>/', lead_detail_view, name='lead-detail'),
+    path('<str:id>/edit/', lead_edit_view, name='lead-edit'),
+    path('<str:id>/status/', lead_update_status_view, name='lead-update-status'),
+    path('<str:id>/status-update/', lead_update_status_view, name='lead-status-update'),
+    path('<str:id>/convert/', lead_convert_view, name='lead-convert'),
 ]

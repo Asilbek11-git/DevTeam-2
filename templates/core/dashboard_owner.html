@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header with Workspace Title & Quick Actions -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 text-xs font-bold font-mono uppercase tracking-wider border border-indigo-500/30">
+                    {{ role|default:"OWNER" }} COMMAND CENTER
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Workspace: <strong class="text-slate-200">{{ workspace.name|default:"Main Engineering" }}</strong></span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Executive Business Operations</h1>
+            <p class="text-xs text-slate-400">Real-time database analytics for clients, deal pipeline, software projects, and financial revenue.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{% url 'client-create' %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Add Client</span>
+            </a>
+            <a href="{% url 'lead-create' %}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-plus"></i>
+                <span>New Deal / Lead</span>
+            </a>
+            <a href="{% url 'expense-create' %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-receipt text-rose-400"></i>
+                <span>Log Expense</span>
+            </a>
+            <a href="{% url 'public-portfolio' %}" target="_blank" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-globe"></i>
+                <span>Public Site</span>
+            </a>
+            <a href="{% url 'finance-dashboard' %}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-violet-400 text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-vault"></i>
+                <span>Finance Hub</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 6 Primary Executive KPI Cards (Real ORM Data) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+        <!-- 1. Total Revenue -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Total Revenue</span>
+                <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold text-white">${{ stats.total_revenue|floatformat:2 }}</div>
+                <div class="text-[11px] text-emerald-400 mt-0.5 flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    <span>${{ stats.month_revenue|floatformat:2 }} this month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Net Profit -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Net Profit</span>
+                <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i class="fa-solid fa-vault"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold {% if stats.net_profit >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                    ${{ stats.net_profit|floatformat:2 }}
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">
+                    Exp: ${{ stats.total_expenses|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Pipeline Deal Value -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Pipeline Deals</span>
+                <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <i class="fa-solid fa-funnel-dollar"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold text-white">${{ stats.pipeline_value|floatformat:2 }}</div>
+                <div class="text-[11px] text-amber-400 mt-0.5">
+                    {{ stats.total_leads }} active deal{{ stats.total_leads|pluralize }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Client Accounts -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Clients</span>
+                <span class="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    <i class="fa-solid fa-address-book"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold text-white">{{ stats.total_clients }}</div>
+                <div class="text-[11px] text-sky-400 mt-0.5">
+                    {{ stats.active_clients }} active / {{ stats.new_clients_month }} new
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Active Projects -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Projects</span>
+                <span class="p-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold text-white">{{ stats.active_projects }}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">
+                    {{ stats.completed_projects }} completed / {{ stats.overdue_projects }} delayed
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Paid Invoices -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-medium uppercase tracking-wider">Invoices Paid</span>
+                <span class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-xl font-bold text-white">{{ stats.paid_invoices_count }}</div>
+                <div class="text-[11px] text-amber-400 mt-0.5">
+                    Pending: ${{ stats.pending_payments|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2-Column Section: Financial Trend & Pipeline Stages -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 6-Month Trajectory Chart -->
+        <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-white">Financial Growth Trajectory</h3>
+                    <p class="text-xs text-slate-400">Monthly Revenue vs Operating Expenses (Last 6 Months)</p>
+                </div>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    Calculated from DB Invoices
+                </span>
+            </div>
+
+            <!-- Visual Bar Grid -->
+            <div class="space-y-4 pt-2">
+                {% if monthly_chart_data %}
+                <div class="grid grid-cols-6 gap-2 sm:gap-4 items-end h-44 sm:h-48 pt-6 pb-2 border-b border-slate-800">
+                    {% for m in monthly_chart_data %}
+                    <div class="flex flex-col items-center gap-1.5 h-full justify-end group">
+                        <div class="w-full max-w-[40px] flex items-end justify-center gap-1 h-32 relative">
+                            <!-- Tooltip -->
+                            <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-slate-950 border border-slate-800 text-[10px] text-slate-200 px-2 py-1 rounded shadow-lg whitespace-nowrap z-10">
+                                Rev: ${{ m.revenue|floatformat:0 }} | Exp: ${{ m.expenses|floatformat:0 }}
+                            </div>
+                            <!-- Revenue Bar -->
+                            <div class="w-1/2 bg-emerald-500 rounded-t min-h-[4px] transition-all hover:bg-emerald-400"
+                                 style="height: {% if stats.total_revenue > 0 %}{% widthratio m.revenue stats.total_revenue 100 %}{% else %}8{% endif %}%;">
+                            </div>
+                            <!-- Expense Bar -->
+                            <div class="w-1/2 bg-rose-500/80 rounded-t min-h-[4px] transition-all hover:bg-rose-400"
+                                 style="height: {% if stats.total_expenses > 0 %}{% widthratio m.expenses stats.total_expenses 100 %}{% else %}6{% endif %}%;">
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-mono text-slate-400">{{ m.label }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex items-center justify-end gap-4 text-xs">
+                    <span class="flex items-center gap-1.5 text-slate-300">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span> Revenue
+                    </span>
+                    <span class="flex items-center gap-1.5 text-slate-300">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span> Expenses
+                    </span>
+                </div>
+                {% else %}
+                <div class="py-12 text-center text-slate-500 text-xs">
+                    No historical invoice or expense records found yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- CRM Lead Pipeline Stages -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-white">Deal Pipeline Stages</h3>
+                    <a href="{% url 'lead-list' %}" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+                        View Pipeline &rarr;
+                    </a>
+                </div>
+
+                <div class="space-y-3">
+                    {% for stage in lead_stages %}
+                    <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full {% if stage.code == 'NEW' %}bg-sky-400{% elif stage.code == 'CONTACTED' %}bg-indigo-400{% elif stage.code == 'NEGOTIATION' %}bg-amber-400{% elif stage.code == 'ACCEPTED' or stage.code == 'COMPLETED' %}bg-emerald-400{% else %}bg-slate-500{% endif %}"></span>
+                            <span class="text-xs font-medium text-slate-300">{{ stage.label }}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold text-white">{{ stage.count }} deal{{ stage.count|pluralize }}</div>
+                            <div class="text-[10px] text-slate-400">${{ stage.value|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-6 text-center text-slate-500 text-xs">
+                        No active leads in pipeline. <br>
+                        <a href="{% url 'lead-create' %}" class="text-indigo-400 underline mt-1 inline-block">Create your first deal</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                <span>Conversion Rate</span>
+                <span class="font-bold text-emerald-400 text-sm font-mono">{{ stats.conversion_rate }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Projects & Recent Deals -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Key Projects -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-diagram-project text-indigo-400 text-xs"></i>
+                    <h3 class="text-sm font-bold text-white">Active Software Projects</h3>
+                </div>
+                <a href="{% url 'project-list' %}" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+                    All Projects &rarr;
+                </a>
+            </div>
+
+            <div class="space-y-3">
+                {% for proj in projects %}
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 hover:border-slate-700 transition">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono text-[10px] font-bold">
+                                {{ proj.key }}
+                            </span>
+                            <a href="{% url 'project-detail' proj.id %}" class="text-xs font-bold text-white hover:text-indigo-300 transition">
+                                {{ proj.name }}
+                            </a>
+                        </div>
+                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full {% if proj.health == 'ON_TRACK' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% elif proj.health == 'AT_RISK' %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% else %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %}">
+                            {{ proj.get_health_display }}
+                        </span>
+                    </div>
+
+                    <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Deadline: <strong class="text-slate-300">{{ proj.deadline|default:"Not set" }}</strong></span>
+                        <span>Budget: <strong class="text-emerald-400">${{ proj.budget|floatformat:2 }}</strong></span>
+                    </div>
+
+                    {% if proj.tech_stack %}
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        {% for tech in proj.tech_stack %}
+                        <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-mono">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="py-8 text-center text-slate-500 text-xs">
+                    No active software projects. <a href="{% url 'project-create' %}" class="text-indigo-400 underline">Create one now</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Clients & Inquiries -->
+        <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-address-book text-emerald-400 text-xs"></i>
+                    <h3 class="text-sm font-bold text-white">Client Accounts & Contacts</h3>
+                </div>
+                <a href="{% url 'client-list' %}" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+                    All Clients &rarr;
+                </a>
+            </div>
+
+            <div class="space-y-3">
+                {% for client in recent_clients %}
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between hover:border-slate-700 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
+                            {{ client.full_name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <a href="{% url 'client-detail' client.id %}" class="text-xs font-bold text-white hover:text-emerald-400 transition">
+                                {{ client.full_name }}
+                            </a>
+                            <p class="text-[10px] text-slate-400">{{ client.company|default:client.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <span class="text-[10px] px-2 py-0.5 rounded-full {% if client.status == 'ACTIVE' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-slate-800 text-slate-400{% endif %}">
+                            {{ client.get_status_display }}
+                        </span>
+                        <div class="text-[10px] text-slate-400 mt-1 font-mono">${{ client.total_billed|floatformat:0 }} billed</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="py-8 text-center text-slate-500 text-xs">
+                    No client records yet. <a href="{% url 'client-create' %}" class="text-emerald-400 underline">Add your first client</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

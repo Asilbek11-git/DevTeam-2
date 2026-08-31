@@ -107,6 +107,7 @@ class Invoice(TenantScopedModel):
 
     invoice_number = models.CharField(max_length=50, unique=True)
     subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
+    client = models.ForeignKey('workspaces.Client', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=10, default='USD')
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PAID)

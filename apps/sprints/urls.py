@@ -7,4 +7,6 @@ router.register(r'api', SprintViewSet, basename='sprints-api')
 
 urlpatterns = [
     path('', sprint_list_template_view, name='sprints-list'),
+    path('list/', sprint_list_template_view, name='sprint-list'),
+    path('all/', sprint_list_template_view, name='sprints'),
 ] + router.urls
