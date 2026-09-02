@@ -222,11 +222,17 @@
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
-            <a href="{% url 'dashboard' %}" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold transition">Cancel</a>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-lg shadow-indigo-600/20">
-                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Profile Changes
-            </button>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+            <a href="{% url 'logout' %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600/10 hover:bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:text-rose-200 text-xs font-semibold transition">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Log Out</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'dashboard' %}" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold transition">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-lg shadow-indigo-600/20">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Profile Changes
+                </button>
+            </div>
         </div>
     </form>
 </div>

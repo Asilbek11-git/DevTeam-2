@@ -75,6 +75,7 @@ def public_portfolio_detail_view(request, slug):
 # ==========================================
 
 @login_required(login_url='login')
+@owner_required
 def portfolio_manage_list_view(request):
     """Portfolio management table for Owner/Admin."""
     items = PortfolioItem.objects.filter(owner=request.user).order_by('-created_at')
@@ -92,6 +93,7 @@ def portfolio_manage_list_view(request):
 
 
 @login_required(login_url='login')
+@owner_required
 def portfolio_create_view(request):
     """Create a new portfolio item with cover image upload."""
     workspace, role = get_active_workspace(request)
@@ -169,6 +171,7 @@ def portfolio_create_view(request):
 
 
 @login_required(login_url='login')
+@owner_required
 def portfolio_edit_view(request, id):
     """Edit existing portfolio project."""
     workspace, role = get_active_workspace(request)
@@ -232,6 +235,7 @@ def portfolio_edit_view(request, id):
 
 
 @login_required(login_url='login')
+@owner_required
 def portfolio_delete_view(request, id):
     """Delete portfolio item."""
     item = get_object_or_404(PortfolioItem, id=id, owner=request.user)

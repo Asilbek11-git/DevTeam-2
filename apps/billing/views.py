@@ -8,7 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from apps.core.responses import success_response
-from apps.core.permissions import IsWorkspaceOwner
+from apps.core.permissions import IsWorkspaceOwner, get_active_workspace
+from django.db.models import Q
+from apps.workspaces.models import Client
 from .models import Plan, Subscription, Invoice, Coupon
 from .serializers import PlanSerializer, SubscriptionSerializer, InvoiceSerializer
 
@@ -43,11 +45,32 @@ def pricing_plans_view(request):
 
 @login_required(login_url='login')
 def invoices_view(request):
-    """Render workspace billing invoices & payment methods."""
-    workspace = getattr(request, 'current_workspace', None)
+    """Render workspace billing invoices & payment methods with strict role isolation."""
+    workspace, role = get_active_workspace(request)
     invoices = []
-    if workspace:
+    
+    if not workspace:
+        messages.warning(request, "Please create or select a workspace.")
+        return redirect('workspace-list')
+        
+    if role in ['OWNER', 'ADMIN'] or request.user.is_superuser:
         invoices = Invoice.objects.filter(workspace=workspace).order_by('-created_at')
+    elif role == 'CLIENT':
+        # Client can only see invoices linked to their client profile
+        client_obj = Client.objects.filter(
+            Q(workspace=workspace) & (
+                Q(user=request.user) | Q(email__iexact=request.user.email) | Q(owner=request.user)
+            )
+        ).first()
+        if client_obj:
+            invoices = Invoice.objects.filter(workspace=workspace, client=client_obj).order_by('-created_at')
+        else:
+            invoices = Invoice.objects.none()
+    else:
+        # Team members (DEVELOPER, etc.) cannot view financial billing invoices
+        messages.error(request, "Access restricted. You do not have permission to view billing invoices.")
+        return redirect('dashboard')
+        
     return render(request, 'billing/invoices.html', {
         'invoices': invoices,
         'page_title': 'Invoices & Billing History'
